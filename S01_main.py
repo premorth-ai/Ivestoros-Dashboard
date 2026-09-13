@@ -1,27 +1,24 @@
 import streamlit as st
-import pandas as pd
-import plotly.express as px
 
 from S02_datos import consultar_web,no_sql_renombrar,cambiar_tipo
-from S03_interface import (
-    mostrar_interface,configurar_interface,
-    mostrar_header,mostrar_contenido,navigation)
+from S03_interface import (mostrar_interface,configurar_interface,mostrar_header,mostrar_contenido,navigation)
 from S05_funciones import (
-    metric_cards,financial_section,financial_relational_section,financial_market_relational_section,get_company_data,
-    inicializar_estado,reset_dashboard,validar_ticker,
-    normalizar_datos)
+    financial_section,financial_relational_section,financial_market_relational_section,
+    get_company_data,inicializar_estado,reset_dashboard,validar_ticker,normalizar_datos)
 from S04_graficos import price_chart
 
 
 # CONFIGURACIÓN
 configurar_interface()
+
 # ESTADO DE LA APLICACIÓN
 inicializar_estado()
+
 # SIDEBAR
 ticker,period = mostrar_interface(reset_dashboard)
+
 # VALIDACIÓN DEL TICKER
 ticker = validar_ticker(ticker)
-
 if ticker is None:
     if st.session_state.ticker == "":
         st.warning("Ingrese un ticker para comenzar.")
@@ -62,8 +59,10 @@ else:
 if ticker:
     mostrar_header(empresa,precio_actual,marketcap_actual)
     price_chart(data,x_column,precio_actual)
+
 # NAVEGACIÓN
 navigation()
+
 # CONTENIDO
 if ticker:
     mostrar_contenido(financial_section,financial_relational_section,

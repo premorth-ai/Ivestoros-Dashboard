@@ -217,10 +217,10 @@ def metric_cards(data,metrics,percentage_metrics=None):
 def obtener_industria(industria):
     if industria is None:
         return None
-    for datos_industria in industrias:
-        if datos_industria["industria"] == industria:
-            return datos_industria
-    return None
+    datos_industria = industrias[industrias["industria"] == industria]
+    if datos_industria.empty:
+        return None
+    return datos_industria.iloc[0]
 
 # CALCULAR VALORACIONES
 def calcular_valoraciones(data,industria):

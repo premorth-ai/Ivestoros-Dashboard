@@ -37,7 +37,7 @@ def mostrar_interface(reset_dashboard):
             label_visibility="collapsed",key="ticker",on_change=reset_dashboard)
         # INDUSTRIA
         st.markdown("**INDUSTRIA**")
-        industria = st.selectbox("Industry",[i["industria"] for i in industrias],index=None,
+        industria = st.selectbox("Industry",industrias["industria"],index=None,
             placeholder="Select industry",label_visibility="collapsed",key="industria")
         # PERIODO
         st.markdown("**PERIODO**")

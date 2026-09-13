@@ -1,0 +1,66 @@
+﻿industria;pe_5ya;pe_actual;ps_5ya;ps_actual;pb_5ya;pb_actual;pfcf_5ya;pfcf_actual
+Semiconductores;26,5;28,5;4,8;5,2;6,2;6,8;25,0;27,0
+Software;27,0;29,0;5,5;6,0;7,5;8,0;28,5;30,0
+Hardware;20,5;22,0;2,1;2,3;4,5;4,8;18,5;19,5
+Ciberseguridad;32,0;34,0;7,2;7,8;8,0;8,5;32,0;33,5
+Computación en la nube;30,0;32,0;6,0;6,5;7,0;7,5;30,0;31,0
+Inteligencia artificial;35,0;38,0;8,5;9,2;9,5;10,2;36,0;38,0
+Servicios de TI y Consultoría;22,0;21,0;2,3;2,2;5,0;4,8;19,0;18,5
+Bancos;10,5;11,5;1,8;1,9;1,1;1,2;11,0;11,8
+Seguros;12,0;12,5;2,2;2,3;1,4;1,5;12,5;13,0
+Gestión de activos;13,5;14,0;2,8;2,9;2,1;2,2;15,0;15,5
+Servicios financieros;14,0;14,5;2,5;2,6;1,8;1,9;16,0;16,5
+Fintech;22,0;23,5;4,5;4,8;3,8;4,0;26,0;27,0
+Bancos Regionales;9,5;10,0;1,5;1,6;0,9;0,95;10,0;10,5
+Banca de Inversión y Corretaje;12,5;13,0;2,1;2,2;1,3;1,4;13,0;13,5
+Farmacéuticas;16,5;17,0;3,8;3,9;3,2;3,3;18,0;18,5
+Biotecnología;24,0;25,0;5,0;5,2;4,0;4,2;25,0;25,5
+Equipos médicos;25,0;26,0;4,2;4,4;4,5;4,7;26,0;26,5
+Servicios hospitalarios;17,5;18,0;1,5;1,6;2,8;2,9;16,0;16,5
+Diagnóstico;19,0;19,5;2,2;2,3;3,0;3,1;20,0;20,5
+Gestión de Salud (Managed Care / EPS);15,0;15,5;0,6;0,65;2,5;2,6;15,0;15,5
+Petróleo y gas;9,5;10,5;1,1;1,2;1,3;1,4;8,0;8,5
+Energías renovables;21,0;19,5;2,5;2,3;2,0;1,9;20,0;18,5
+Servicios petroleros;12,0;12,5;1,4;1,5;1,6;1,7;11,0;11,5
+Infraestructura de Hidrocarburos;13,0;13,5;1,8;1,9;1,7;1,8;13,0;13,5
+Maquinaria industrial;18,0;19,0;1,5;1,6;3,2;3,3;18,0;18,5
+Aeroespacial y defensa;21,5;23,0;1,8;1,9;4,0;4,2;17,5;18,5
+Construcción;15,5;16,0;1,0;1,1;2,5;2,6;20,0;20,5
+Transporte;16,5;17,0;1,2;1,25;3,0;3,1;14,0;14,5
+Ingeniería;16,0;16,5;1,1;1,15;2,2;2,3;15,0;15,5
+Aerolíneas y Carga Aérea;9,0;9,5;0,5;0,55;1,6;1,65;15,0;14,5
+Logística y Cadena de Suministro;18,5;19,0;0,8;0,85;3,5;3,6;10,0;10,5
+Automóviles;8,5;9,0;0,6;0,65;1,8;1,85;10,5;11,0
+Retail;19,0;19,5;1,2;1,25;3,5;3,6;16,0;16,5
+Hoteles y restaurantes;21,0;21,5;2,0;2,1;4,2;4,3;20,0;20,5
+Lujo;23,5;22,0;3,2;3,0;6,0;5,8;24,0;22,5
+Entretenimiento;20,0;20,5;1,4;1,45;2,8;2,9;19,0;19,5
+E-Commerce / Comercio Electrónico;27,0;28,5;2,2;2,3;4,8;5,0;28,0;29,0
+Indumentaria y Calzado;17,5;18,0;1,4;1,45;3,2;3,3;17,0;17,5
+Bebidas;19,5;20,0;2,1;2,15;4,8;4,9;22,0;22,5
+Alimentos;18,5;19,0;1,5;1,55;3,5;3,6;19,0;19,5
+Productos del hogar;20,0;20,5;2,0;2,05;4,0;4,1;21,0;21,5
+Higiene personal;20,5;21,0;2,2;2,25;4,5;4,6;21,0;21,5
+Tabaco;10,0;10,5;1,8;1,85;3,0;3,1;11,0;11,5
+Supermercados e Hipermercados;14,5;15,0;0,4;0,42;2,2;2,3;15,0;15,5
+Telecomunicaciones;11,5;12,0;1,6;1,65;1,4;1,45;12,0;12,5
+Redes sociales;22,0;23,5;4,0;4,2;4,5;4,7;24,0;25,0
+Medios;15,0;15,5;1,5;1,55;2,0;2,1;14,0;14,5
+Entretenimiento digital;23,0;24,0;2,8;2,9;3,8;3,9;21,0;21,5
+Videojuegos y Software Interactivo;24,5;25,0;4,2;4,3;3,5;3,6;24,0;24,5
+REITs residenciales;17,0;17,5;4,5;4,6;1,5;1,55;20,0;20,5
+REITs comerciales;15,0;15,5;3,2;3,3;1,2;1,25;16,0;16,5
+Centros de datos;24,0;25,5;6,5;6,8;2,2;2,3;25,0;26,0
+Infraestructura inmobiliaria;18,0;18,5;4,0;4,1;1,6;1,65;22,0;22,5
+REITs Industriales y Logística;21,0;21,5;7,0;7,2;2,0;2,05;23,0;23,5
+REITs de Salud e Instalaciones Médicas;16,5;17,0;5,2;5,3;1,4;1,45;17,0;17,5
+Minería;12,5;13,0;1,2;1,25;1,5;1,55;11,0;11,5
+Químicos;15,0;15,5;1,6;1,65;2,2;2,25;16,0;16,5
+Metales;12,0;12,5;1,0;1,05;1,3;1,35;10,0;10,5
+Materiales de construcción;16,5;17,0;1,5;1,55;2,0;2,05;15,0;15,5
+Empaques y Embalajes;15,5;16,0;1,1;1,15;2,4;2,45;14,0;14,5
+Electricidad;17,0;17,5;1,8;1,85;1,8;1,85;17,0;17,5
+Agua;20,0;20,5;2,2;2,25;2,1;2,15;23,0;23,5
+Gas;16,0;16,5;1,6;1,65;1,6;1,65;15,0;15,5
+Infraestructura energética;15,5;16,0;1,5;1,55;1,5;1,55;15,0;15,5
+Productores Independientes de Energía;14,0;14,5;1,3;1,35;1,4;1,45;13,0;13,5
