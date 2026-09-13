@@ -33,32 +33,19 @@ def price_chart(data,x_column,precio_actual):
 
 # GRÁFICOS POR COMPONENTES
 def financial_charts(data,x_column,metrics):
-    columns = st.columns(len(metrics))
-    for column,metric in zip(columns,metrics):
-        with column:
-            with st.container(border=True):
-                chart_data = data[[x_column,metric]].set_index(x_column)
-                label = {"ps":"Price/Sales","pe":"Price/Earnings","pb":"Price/Book","p_fcf":"Price/FCF",
-                         "fcf":"FCF","fcf_margin":"FCF Margin"}.get(metric,metric.replace("_"," ").title())
-                st.markdown(f"<h4 style='text-align: center;'>{label}</h4>",unsafe_allow_html=True)
-                tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
-                with tab_grafico:
-                    fig = px.bar(chart_data,x=chart_data.index,y=metric,color_discrete_sequence=[color])
-                    fig.update_traces(marker_line_width=1,marker_line_color="#000000")
-                    if metric in ["revenue","capex","fcf"]:
-                        fig.update_traces(hovertemplate="$%{y:,.0f} M<extra></extra>")
-                    else:
-                        fig.update_traces(hovertemplate="%{y:,.2f}<extra></extra>")
-                    configurar_grafico(fig,300)
-                    fig.update_xaxes(type="category",tickmode="array",tickvals=chart_data.index.tolist())
-                    mostrar_grafico(fig)
-                with tab_datos:
-                    tabla_data = chart_data
-                    if metric in ["revenue","capex","fcf"]:
-                        st.dataframe(tabla_data,use_container_width=True,
-                            column_config={metric: st.column_config.NumberColumn(format="$%,.0f M")})
-                    else:
-                        st.dataframe(tabla_data,use_container_width=True)
+    graficos = {}
+    for metric in metrics:
+        chart_data = data[[x_column,metric]].set_index(x_column)
+        fig = px.bar(chart_data,x=chart_data.index,y=metric,color_discrete_sequence=[color])
+        fig.update_traces(marker_line_width=1,marker_line_color="#000000")
+        if metric in ["revenue","capex","fcf"]:
+            fig.update_traces(hovertemplate="$%{y:,.0f} M<extra></extra>")
+        else:
+            fig.update_traces(hovertemplate="%{y:,.2f}<extra></extra>")
+        configurar_grafico(fig,300)
+        fig.update_xaxes(type="category",tickmode="array",tickvals=chart_data.index.tolist())
+        graficos[metric] = fig
+    return graficos
 
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):

@@ -135,113 +135,60 @@ def mostrar_valoracion(data,metric,current,direction):
 # TARJETAS DE MÉTRICAS
 def metric_cards(data,metrics,percentage_metrics=None):
     percentage_metrics = percentage_metrics or []
-    columnas = st.columns(len(metrics))
     es_valoracion = metrics == ["ps","pe","pb","p_fcf"]
     if "evaluaciones" not in data.attrs:
         data.attrs["evaluaciones"] = {}
-    for columna,metric in zip(columnas,metrics):
+    resultados = {}
+    for metric in metrics:
         current = data[metric].iloc[-1]
         direction = obtener_direccion(metric)
         value = formatear_valor(current,metric,percentage_metrics)
-        with columna:
-            if es_valoracion:
-                st.markdown(f"<strong>Dato reciente:</strong> {value}",unsafe_allow_html=True)
-                with st.expander("Mostrar más"):
-                    mostrar_valoracion(data,metric,current,direction)
+        if es_valoracion:
+            resultados[metric] = {
+                "current":current,
+                "value":value,
+                "direction":direction,
+                "valoracion":calcular_valoraciones(data,st.session_state.industria)
+            }
+        else:
+            evaluacion = calcular_evaluacion(data,metric)
+            change_promedio = evaluacion["promedio"]
+            change = evaluacion["anterior"]
+            cagr = evaluacion["cagr"]
+            change_antiguo = evaluacion["antiguo"]
+            tendencia,nombre_tendencia,texto_tendencia,arrow_tendencia = calcular_tendencia(data,metric,cagr)
+            data.attrs["evaluaciones"][metric] = {
+                "promedio":change_promedio,
+                "anterior":change,
+                "cagr":cagr,
+                "antiguo":change_antiguo,
+                "tendencia":tendencia
+            }
+            resultados[metric] = {
+                "current":current,
+                "value":value,
+                "direction":direction,
+                "promedio":change_promedio,
+                "anterior":change,
+                "cagr":cagr,
+                "antiguo":change_antiguo,
+                "tendencia":tendencia,
+                "nombre_tendencia":nombre_tendencia,
+                "texto_tendencia":texto_tendencia,
+                "arrow_tendencia":arrow_tendencia
+            }
+    if len(data) == 5 and not es_valoracion:
+        puntajes = sistema_puntos(data)
+        st.session_state.puntajes_anuales = puntajes
+        for metric in metrics:
+            if metric in puntajes:
+                resultados[metric]["puntaje"] = puntajes[metric]
             else:
-                st.markdown(f"<strong>Dato actual:</strong> {value}",unsafe_allow_html=True)
-                puntaje_placeholder = st.empty()
-                with st.expander("Mostrar más"):
-                    evaluacion = calcular_evaluacion(data,metric)
-                    change_promedio = evaluacion["promedio"]
-                    change = evaluacion["anterior"]
-                    cagr = evaluacion["cagr"]
-                    change_antiguo = evaluacion["antiguo"]
-                    if change_promedio is not None:
-                        delta_promedio = f"{change_promedio:+.1f}%"
-                        if direction == "neutral":
-                            arrow_promedio = "↑" if change_promedio > 0 else "↓"
-                            delta_color_promedio = "gray"
-                        elif direction == "direct":
-                            arrow_promedio = "↑" if change_promedio > 0 else "↓"
-                            delta_color_promedio = "green" if change_promedio > 0 else "red"
-                        else:
-                            arrow_promedio = "↓" if change_promedio > 0 else "↑"
-                            delta_color_promedio = "green" if change_promedio < 0 else "red"
-                        st.markdown(f"Reciente vs promedio: <span style='color:{delta_color_promedio};'><strong>{arrow_promedio} {delta_promedio}</strong></span>",unsafe_allow_html=True)
-                    else:
-                        st.markdown("Reciente vs promedio: **N/A**")
-                    if change is not None:
-                        delta = f"{change:+.1f}%"
-                        if direction == "neutral":
-                            arrow = "↑" if change > 0 else "↓"
-                            delta_color = "gray"
-                        elif direction == "direct":
-                            arrow = "↑" if change > 0 else "↓"
-                            delta_color = "green" if change > 0 else "red"
-                        else:
-                            arrow = "↓" if change < 0 else "↑"
-                            delta_color = "green" if change < 0 else "red"
-                        st.markdown(f"Reciente vs anterior: <span style='color:{delta_color};'><strong>{arrow} {delta}</strong></span>",unsafe_allow_html=True)
-                    else:
-                        st.markdown("Reciente vs anterior: **N/A**")
-                    if cagr is not None:
-                        cagr_value = f"{cagr:+.1%}"
-                        if direction == "neutral":
-                            arrow_cagr = "↑" if cagr > 0 else "↓"
-                            delta_color_cagr = "gray"
-                        elif direction == "direct":
-                            arrow_cagr = "↑" if cagr > 0 else "↓"
-                            delta_color_cagr = "green" if cagr > 0 else "red"
-                        else:
-                            arrow_cagr = "↓" if cagr < 0 else "↑"
-                            delta_color_cagr = "green" if cagr < 0 else "red"
-                        st.markdown(f"CAGR: <span style='color:{delta_color_cagr};'><strong>{arrow_cagr} {cagr_value}</strong></span>",unsafe_allow_html=True)
-                    else:
-                        st.markdown("CAGR: **N/A**")
-                    if change_antiguo is not None:
-                        delta_antiguo = f"{change_antiguo:+.1f}%"
-                        if direction == "neutral":
-                            arrow_antiguo = "↑" if change_antiguo > 0 else "↓"
-                            delta_color_antiguo = "gray"
-                        elif direction == "direct":
-                            arrow_antiguo = "↑" if change_antiguo > 0 else "↓"
-                            delta_color_antiguo = "green" if change_antiguo > 0 else "red"
-                        else:
-                            arrow_antiguo = "↓" if change_antiguo > 0 else "↑"
-                            delta_color_antiguo = "green" if change_antiguo > 0 else "red"
-                        st.markdown(f"Reciente vs el más antiguo: <span style='color:{delta_color_antiguo};'><strong>{arrow_antiguo} {delta_antiguo}</strong></span>",unsafe_allow_html=True)
-                    else:
-                        st.markdown("Reciente vs el más antiguo: **N/A**")
-                    tendencia,nombre_tendencia,texto_tendencia,arrow_tendencia = calcular_tendencia(data,metric,cagr)
-                    if len(data) >= 2:
-                        if direction == "neutral":
-                            color_tendencia = "gray"
-                        elif tendencia > 0:
-                            color_tendencia = "green"
-                        elif tendencia < 0:
-                            color_tendencia = "red"
-                        else:
-                            color_tendencia = "gray"
-                        if texto_tendencia:
-                            resultado_tendencia = f"{arrow_tendencia} {nombre_tendencia} {texto_tendencia}"
-                        else:
-                            resultado_tendencia = f"{arrow_tendencia} {nombre_tendencia}"
-                        st.markdown(f"Tendencia: <span style='color:{color_tendencia};'><strong>{resultado_tendencia}</strong></span>",unsafe_allow_html=True)
-                    else:
-                        st.markdown("Tendencia: **N/A**")
-                    data.attrs["evaluaciones"][metric] = {
-                        "promedio":change_promedio,
-                        "anterior":change,
-                        "cagr":cagr,
-                        "antiguo":change_antiguo,
-                        "tendencia":tendencia
-                    }
-                if len(data) == 5:
-                    puntajes = sistema_puntos(data)
-                    st.session_state.puntajes_anuales = puntajes
-                    if metric in puntajes:
-                        puntaje_placeholder.markdown(f"<strong>Puntaje:</strong> {puntajes[metric]:.1f}/10",unsafe_allow_html=True)
+                resultados[metric]["puntaje"] = None
+    else:
+        for metric in metrics:
+            resultados[metric]["puntaje"] = None
+    return resultados
 
 # OBTENER INDUSTRIA
 def obtener_industria(industria):
@@ -280,8 +227,125 @@ def calcular_valoraciones(data,industria):
 def financial_section(data,x_column,title,metrics,percentage_metrics=None):
     with st.container(border=True):
         st.markdown(f"<h3 style='text-align: center;'>{title}</h3>",unsafe_allow_html=True)
-    financial_charts(data,x_column,metrics)
-    metric_cards(data,metrics,percentage_metrics)
+    resultados = metric_cards(data,metrics,percentage_metrics)
+    graficos = financial_charts(data,x_column,metrics)
+    columnas = st.columns(len(metrics))
+    for columna,metric in zip(columnas,metrics):
+        with columna:
+            with st.container(border=True):
+                label = {"ps":"Price/Sales","pe":"Price/Earnings","pb":"Price/Book","p_fcf":"Price/FCF",
+                         "fcf":"FCF","fcf_margin":"FCF Margin"}.get(metric,metric.replace("_"," ").title())
+                st.markdown(f"<h4 style='text-align: center;'>{label}</h4>",unsafe_allow_html=True)
+                fig = graficos[metric]
+                tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
+                with tab_grafico:
+                    st.plotly_chart(fig,use_container_width=True,
+                    config={"scrollZoom":False,"displayModeBar":True,"displaylogo":False,
+                    "modeBarButtonsToRemove":["zoom2d","pan2d","select2d",
+                    "lasso2d","zoomIn2d","zoomOut2d","autoScale2d","resetScale2d"],
+                    "showTips":True})
+                with tab_datos:
+                    tabla_data = data[[x_column,metric]].set_index(x_column)
+                    if metric in ["revenue","capex","fcf"]:
+                        st.dataframe(tabla_data,use_container_width=True,
+                            column_config={metric: st.column_config.NumberColumn(format="$%,.0f M")})
+                    else:
+                        st.dataframe(tabla_data,use_container_width=True)
+                resultado = resultados[metric]
+                if resultado["value"]:
+                    if metric in ["ps","pe","pb","p_fcf"]:
+                        st.markdown(f"<strong>Dato reciente:</strong> {resultado['value']}",unsafe_allow_html=True)
+                    else:
+                        st.markdown(f"<strong>Dato actual:</strong> {resultado['value']}",unsafe_allow_html=True)
+                        if resultado["puntaje"] is not None:
+                            st.markdown(f"<strong>Puntaje:</strong> {resultado['puntaje']:.1f}/10",unsafe_allow_html=True)
+                with st.expander("Mostrar más"):
+                    if metric in ["ps","pe","pb","p_fcf"]:
+                        valoraciones = resultado["valoracion"]
+                        if valoraciones is None:
+                            st.markdown("Reciente vs industria: **No has seleccionado una industria**")
+                            st.markdown("Reciente vs 5YA: **No has seleccionado una industria**")
+                        else:
+                            datos_valoracion = valoraciones[metric]
+                            diferencia_actual = datos_valoracion["diferencia_actual"]
+                            if diferencia_actual is not None:
+                                arrow_actual = "↓" if diferencia_actual < 0 else "↑"
+                                color_actual = "green" if diferencia_actual < 0 else "red"
+                                st.markdown(f"Reciente vs industria: <span style='color:{color_actual};'><strong>{arrow_actual} {diferencia_actual:+.1%}</strong></span>",unsafe_allow_html=True)
+                            else:
+                                st.markdown("Reciente vs industria: **N/A**")
+                            diferencia_5ya = datos_valoracion["diferencia_5ya"]
+                            if diferencia_5ya is not None:
+                                arrow_5ya = "↓" if diferencia_5ya < 0 else "↑"
+                                color_5ya = "green" if diferencia_5ya < 0 else "red"
+                                st.markdown(f"Reciente vs Industria 5YA: <span style='color:{color_5ya};'><strong>{arrow_5ya} {diferencia_5ya:+.1%}</strong></span>",unsafe_allow_html=True)
+                            else:
+                                st.markdown("Reciente vs Industria 5YA: **N/A**")
+                    else:
+                        change_promedio = resultado["promedio"]
+                        change = resultado["anterior"]
+                        cagr = resultado["cagr"]
+                        change_antiguo = resultado["antiguo"]
+                        tendencia = resultado["tendencia"]
+                        nombre_tendencia = resultado["nombre_tendencia"]
+                        texto_tendencia = resultado["texto_tendencia"]
+                        arrow_tendencia = resultado["arrow_tendencia"]
+                        if change_promedio is not None:
+                            if resultado["direction"] == "neutral":
+                                color_promedio = "gray"
+                            elif resultado["direction"] == "direct":
+                                color_promedio = "green" if change_promedio > 0 else "red"
+                            else:
+                                color_promedio = "green" if change_promedio < 0 else "red"
+                            st.markdown(f"Reciente vs promedio: <span style='color:{color_promedio};'><strong>{change_promedio:+.1f}%</strong></span>",unsafe_allow_html=True)
+                        else:
+                            st.markdown("Reciente vs promedio: **N/A**")
+                        if change is not None:
+                            if resultado["direction"] == "neutral":
+                                color_anterior = "gray"
+                            elif resultado["direction"] == "direct":
+                                color_anterior = "green" if change > 0 else "red"
+                            else:
+                                color_anterior = "green" if change < 0 else "red"
+                            st.markdown(f"Reciente vs anterior: <span style='color:{color_anterior};'><strong>{change:+.1f}%</strong></span>",unsafe_allow_html=True)
+                        else:
+                            st.markdown("Reciente vs anterior: **N/A**")
+                        if cagr is not None:
+                            if resultado["direction"] == "neutral":
+                                color_cagr = "gray"
+                            elif resultado["direction"] == "direct":
+                                color_cagr = "green" if cagr > 0 else "red"
+                            else:
+                                color_cagr = "green" if cagr < 0 else "red"
+                            st.markdown(f"CAGR: <span style='color:{color_cagr};'><strong>{cagr:+.1%}</strong></span>",unsafe_allow_html=True)
+                        else:
+                            st.markdown("CAGR: **N/A**")
+                        if change_antiguo is not None:
+                            if resultado["direction"] == "neutral":
+                                color_antiguo = "gray"
+                            elif resultado["direction"] == "direct":
+                                color_antiguo = "green" if change_antiguo > 0 else "red"
+                            else:
+                                color_antiguo = "green" if change_antiguo < 0 else "red"
+                            st.markdown(f"Reciente vs el más antiguo: <span style='color:{color_antiguo};'><strong>{change_antiguo:+.1f}%</strong></span>",unsafe_allow_html=True)
+                        else:
+                            st.markdown("Reciente vs el más antiguo: **N/A**")
+                        if len(data) >= 2:
+                            if resultado["direction"] == "neutral":
+                                color_tendencia = "gray"
+                            elif tendencia > 0:
+                                color_tendencia = "green"
+                            elif tendencia < 0:
+                                color_tendencia = "red"
+                            else:
+                                color_tendencia = "gray"
+                            if texto_tendencia:
+                                resultado_tendencia = f"{arrow_tendencia} {nombre_tendencia} {texto_tendencia}"
+                            else:
+                                resultado_tendencia = f"{arrow_tendencia} {nombre_tendencia}"
+                            st.markdown(f"Tendencia: <span style='color:{color_tendencia};'><strong>{resultado_tendencia}</strong></span>",unsafe_allow_html=True)
+                        else:
+                            st.markdown("Tendencia: **N/A**")
 
 # SECCIONES FINANCIERAS RELACIONADAS
 def financial_relational_section(datos_norm):
