@@ -4,7 +4,7 @@ from S04_graficos import financial_charts,financial_relational_charts,financial_
 from S02_datos import industrias
 from S06_sistema_puntos import sistema_puntos
 
-# TARJETAS DE MÉTRICAS
+# DETERMINAR DIRECCION
 def obtener_direccion(metric):
     if metric in ["debt_ebitda","debt_equity","ps","pe","pb","p_fcf"]:
         return "inverse"
@@ -13,12 +13,14 @@ def obtener_direccion(metric):
     else:
         return "direct"
 
+# DARLE FORMATO AL DATO ACTUAL
 def formatear_valor(current,metric,percentage_metrics):
     if metric in percentage_metrics:
         return f"{current:.1%}"
     else:
         return f"{current:,.2f}".rstrip("0").rstrip(".")
 
+# CALCULOS METRICAS FINANCIERAS
 def calcular_evaluacion(data,metric):
     current = data[metric].iloc[-1]
     promedio = data[metric].mean()
@@ -43,6 +45,7 @@ def calcular_evaluacion(data,metric):
         "antiguo":change_antiguo
     }
 
+# TENDENCIA
 def calcular_tendencia(data,metric,cagr):
     tendencia = 0
     if len(data) >= 2:
@@ -84,13 +87,12 @@ def calcular_tendencia(data,metric,cagr):
     else:
         return tendencia,None,None,None
 
+# CALCULOS VALORACIONES
 def mostrar_valoracion(data,metric,current,direction):
     promedio = data[metric].mean()
-
     if promedio != 0:
         change_promedio = (current - promedio) / promedio * 100
         delta_promedio = f"{change_promedio:+.1f}%"
-
         if direction == "neutral":
             arrow_promedio = "↑" if change_promedio > 0 else "↓"
             delta_color_promedio = "gray"
@@ -100,28 +102,19 @@ def mostrar_valoracion(data,metric,current,direction):
         else:
             arrow_promedio = "↓" if change_promedio < 0 else "↑"
             delta_color_promedio = "green" if change_promedio < 0 else "red"
-
         st.markdown(f"Reciente vs promedio: <span style='color:{delta_color_promedio};'><strong>{arrow_promedio} {delta_promedio}</strong></span>",unsafe_allow_html=True)
     else:
         st.markdown("Reciente vs promedio: **N/A**")
-
     industria = st.session_state.industria
     datos_industria = obtener_industria(industria)
-
     if datos_industria is None:
         st.markdown("Reciente vs industria: **No has seleccionado una industria**")
         st.markdown("Reciente vs 5YA: **No has seleccionado una industria**")
     else:
-        industria_actual = {
-            "ps":"ps_actual","pe":"pe_actual","pb":"pb_actual","p_fcf":"pfcf_actual"
-        }[metric]
-        industria_5ya = {
-            "ps":"ps_5ya","pe":"pe_5ya","pb":"pb_5ya","p_fcf":"pfcf_5ya"
-        }[metric]
-
+        industria_actual = {"ps":"ps_actual","pe":"pe_actual","pb":"pb_actual","p_fcf":"pfcf_actual"}[metric]
+        industria_5ya = {"ps":"ps_5ya","pe":"pe_5ya","pb":"pb_5ya","p_fcf":"pfcf_5ya"}[metric]
         valor_actual = datos_industria[industria_actual]
         valor_5ya = datos_industria[industria_5ya]
-
         if valor_actual != 0:
             change_industria = (current / valor_actual) - 1
             delta_industria = f"{change_industria:+.1%}"
@@ -130,7 +123,6 @@ def mostrar_valoracion(data,metric,current,direction):
             st.markdown(f"Reciente vs industria: <span style='color:{delta_color_industria};'><strong>{arrow_industria} {delta_industria}</strong></span>",unsafe_allow_html=True)
         else:
             st.markdown("Reciente vs industria: **N/A**")
-
         if valor_5ya != 0:
             change_5ya = (current / valor_5ya) - 1
             delta_5ya = f"{change_5ya:+.1%}"
@@ -266,8 +258,8 @@ def calcular_valoraciones(data,industria):
     if datos_industria is None:
         return None
 
-    metricas = {"ps":("ps_actual","ps_5ya"),"pe":("pe_actual","pe_5ya"),"pb":("pb_actual","pb_5ya"),"p_fcf":("pfcf_actual","pfcf_5ya")
-    }
+    metricas = {"ps":("ps_actual","ps_5ya"),"pe":("pe_actual","pe_5ya"),
+                "pb":("pb_actual","pb_5ya"),"p_fcf":("pfcf_actual","pfcf_5ya")}
     resultados = {}
     for metrica,(industria_actual,industria_5ya) in metricas.items():
         empresa_actual = data[metrica].iloc[-1]
@@ -280,22 +272,24 @@ def calcular_valoraciones(data,industria):
         else:
             diferencia_5ya = None
         resultados[metrica] = {"empresa": empresa_actual,"industria_actual": datos_industria[industria_actual],
-            "industria_5ya": datos_industria[industria_5ya],"diferencia_actual": diferencia_actual,"diferencia_5ya": diferencia_5ya
-        }
+            "industria_5ya": datos_industria[industria_5ya],"diferencia_actual": diferencia_actual,
+            "diferencia_5ya": diferencia_5ya}
     return resultados
 
-# SECCIONES FINANCIERAS
+# SECCIONES FINANCIERAS INDIVIDUALES
 def financial_section(data,x_column,title,metrics,percentage_metrics=None):
     with st.container(border=True):
         st.markdown(f"<h3 style='text-align: center;'>{title}</h3>",unsafe_allow_html=True)
     financial_charts(data,x_column,metrics)
     metric_cards(data,metrics,percentage_metrics)
 
+# SECCIONES FINANCIERAS RELACIONADAS
 def financial_relational_section(datos_norm):
     with st.container(border=True):
         st.markdown("<h3 style='text-align: center;'>Relaciones financieras (datos normalizados)</h3>",unsafe_allow_html=True)
     financial_relational_charts(datos_norm)
 
+# SECCIONES BURSATILES RELACIONADAS
 def financial_market_relational_section(datos_norm):
     with st.container(border=True):
         st.markdown("<h3 style='text-align: center;'>Relaciones Bursátiles (Datos normalizados)</h3>",unsafe_allow_html=True)
