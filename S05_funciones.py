@@ -13,6 +13,14 @@ def obtener_direccion(metric):
     else:
         return "direct"
 
+# DETERMINAR COLOR
+def obtener_color(valor,direction):
+    if direction == "neutral":
+        return "gray"
+    if direction == "direct":
+        return "green" if valor > 0 else "red"
+    return "green" if valor < 0 else "red"
+
 # DARLE FORMATO AL DATO ACTUAL
 def formatear_valor(current,metric,percentage_metrics):
     if metric in percentage_metrics:
@@ -87,50 +95,40 @@ def calcular_tendencia(data,metric,cagr):
     else:
         return tendencia,None,None,None
 
-# CALCULOS VALORACIONES
-def mostrar_valoracion(data,metric,current,direction):
-    promedio = data[metric].mean()
-    if promedio != 0:
-        change_promedio = (current - promedio) / promedio * 100
-        delta_promedio = f"{change_promedio:+.1f}%"
-        if direction == "neutral":
-            arrow_promedio = "↑" if change_promedio > 0 else "↓"
-            delta_color_promedio = "gray"
-        elif direction == "direct":
-            arrow_promedio = "↑" if change_promedio > 0 else "↓"
-            delta_color_promedio = "green" if change_promedio > 0 else "red"
-        else:
-            arrow_promedio = "↓" if change_promedio < 0 else "↑"
-            delta_color_promedio = "green" if change_promedio < 0 else "red"
-        st.markdown(f"Reciente vs promedio: <span style='color:{delta_color_promedio};'><strong>{arrow_promedio} {delta_promedio}</strong></span>",unsafe_allow_html=True)
-    else:
-        st.markdown("Reciente vs promedio: **N/A**")
-    industria = st.session_state.industria
+# OBTENER INDUSTRIA
+def obtener_industria(industria):
+    if industria is None:
+        return None
+    datos_industria = industrias[industrias["industria"] == industria]
+    if datos_industria.empty:
+        return None
+    return datos_industria.iloc[0]
+
+# CALCULAR VALORACIONES
+def calcular_valoraciones(data,industria):
     datos_industria = obtener_industria(industria)
     if datos_industria is None:
-        st.markdown("Reciente vs industria: **No has seleccionado una industria**")
-        st.markdown("Reciente vs 5YA: **No has seleccionado una industria**")
-    else:
-        industria_actual = {"ps":"ps_actual","pe":"pe_actual","pb":"pb_actual","p_fcf":"pfcf_actual"}[metric]
-        industria_5ya = {"ps":"ps_5ya","pe":"pe_5ya","pb":"pb_5ya","p_fcf":"pfcf_5ya"}[metric]
-        valor_actual = datos_industria[industria_actual]
-        valor_5ya = datos_industria[industria_5ya]
-        if valor_actual != 0:
-            change_industria = (current / valor_actual) - 1
-            delta_industria = f"{change_industria:+.1%}"
-            arrow_industria = "↓" if change_industria < 0 else "↑"
-            delta_color_industria = "green" if change_industria < 0 else "red"
-            st.markdown(f"Reciente vs industria: <span style='color:{delta_color_industria};'><strong>{arrow_industria} {delta_industria}</strong></span>",unsafe_allow_html=True)
+        return None
+
+    metricas = {"ps":("ps_actual","ps_5ya"),"pe":("pe_actual","pe_5ya"),
+                "pb":("pb_actual","pb_5ya"),"p_fcf":("pfcf_actual","pfcf_5ya")}
+    resultados = {}
+    for metrica,(industria_actual,industria_5ya) in metricas.items():
+        empresa_actual = data[metrica].iloc[-1]
+        valor_industria_actual = datos_industria[industria_actual]
+        valor_industria_5ya = datos_industria[industria_5ya]
+        if valor_industria_actual != 0:
+            diferencia_actual = (empresa_actual / valor_industria_actual) - 1
         else:
-            st.markdown("Reciente vs industria: **N/A**")
-        if valor_5ya != 0:
-            change_5ya = (current / valor_5ya) - 1
-            delta_5ya = f"{change_5ya:+.1%}"
-            arrow_5ya = "↓" if change_5ya < 0 else "↑"
-            delta_color_5ya = "green" if change_5ya < 0 else "red"
-            st.markdown(f"Reciente vs Industria 5YA: <span style='color:{delta_color_5ya};'><strong>{arrow_5ya} {delta_5ya}</strong></span>",unsafe_allow_html=True)
+            diferencia_actual = None
+        if valor_industria_5ya != 0:
+            diferencia_5ya = (empresa_actual / valor_industria_5ya) - 1
         else:
-            st.markdown("Reciente vs Industria 5YA: **N/A**")
+            diferencia_5ya = None
+        resultados[metrica] = {"empresa":empresa_actual,"industria_actual":valor_industria_actual,
+            "industria_5ya":valor_industria_5ya,"diferencia_actual": diferencia_actual,
+            "diferencia_5ya": diferencia_5ya}
+    return resultados
 
 # TARJETAS DE MÉTRICAS
 def metric_cards(data,metrics,percentage_metrics=None):
@@ -139,6 +137,7 @@ def metric_cards(data,metrics,percentage_metrics=None):
     if "evaluaciones" not in data.attrs:
         data.attrs["evaluaciones"] = {}
     resultados = {}
+    valoraciones = calcular_valoraciones(data,st.session_state.industria) if es_valoracion else None
     for metric in metrics:
         current = data[metric].iloc[-1]
         direction = obtener_direccion(metric)
@@ -148,7 +147,7 @@ def metric_cards(data,metrics,percentage_metrics=None):
                 "current":current,
                 "value":value,
                 "direction":direction,
-                "valoracion":calcular_valoraciones(data,st.session_state.industria)
+                "valoracion":valoraciones
             }
         else:
             evaluacion = calcular_evaluacion(data,metric)
@@ -188,39 +187,6 @@ def metric_cards(data,metrics,percentage_metrics=None):
     else:
         for metric in metrics:
             resultados[metric]["puntaje"] = None
-    return resultados
-
-# OBTENER INDUSTRIA
-def obtener_industria(industria):
-    if industria is None:
-        return None
-    datos_industria = industrias[industrias["industria"] == industria]
-    if datos_industria.empty:
-        return None
-    return datos_industria.iloc[0]
-
-# CALCULAR VALORACIONES
-def calcular_valoraciones(data,industria):
-    datos_industria = obtener_industria(industria)
-    if datos_industria is None:
-        return None
-
-    metricas = {"ps":("ps_actual","ps_5ya"),"pe":("pe_actual","pe_5ya"),
-                "pb":("pb_actual","pb_5ya"),"p_fcf":("pfcf_actual","pfcf_5ya")}
-    resultados = {}
-    for metrica,(industria_actual,industria_5ya) in metricas.items():
-        empresa_actual = data[metrica].iloc[-1]
-        if industria_actual != 0:
-            diferencia_actual = (empresa_actual / datos_industria[industria_actual]) - 1
-        else:
-            diferencia_actual = None
-        if industria_5ya != 0:
-            diferencia_5ya = (empresa_actual / datos_industria[industria_5ya]) - 1
-        else:
-            diferencia_5ya = None
-        resultados[metrica] = {"empresa": empresa_actual,"industria_actual": datos_industria[industria_actual],
-            "industria_5ya": datos_industria[industria_5ya],"diferencia_actual": diferencia_actual,
-            "diferencia_5ya": diferencia_5ya}
     return resultados
 
 # SECCIONES FINANCIERAS INDIVIDUALES
@@ -291,42 +257,22 @@ def financial_section(data,x_column,title,metrics,percentage_metrics=None):
                         texto_tendencia = resultado["texto_tendencia"]
                         arrow_tendencia = resultado["arrow_tendencia"]
                         if change_promedio is not None:
-                            if resultado["direction"] == "neutral":
-                                color_promedio = "gray"
-                            elif resultado["direction"] == "direct":
-                                color_promedio = "green" if change_promedio > 0 else "red"
-                            else:
-                                color_promedio = "green" if change_promedio < 0 else "red"
+                            color_promedio = obtener_color(change_promedio,resultado["direction"])
                             st.markdown(f"Reciente vs promedio: <span style='color:{color_promedio};'><strong>{change_promedio:+.1f}%</strong></span>",unsafe_allow_html=True)
                         else:
                             st.markdown("Reciente vs promedio: **N/A**")
                         if change is not None:
-                            if resultado["direction"] == "neutral":
-                                color_anterior = "gray"
-                            elif resultado["direction"] == "direct":
-                                color_anterior = "green" if change > 0 else "red"
-                            else:
-                                color_anterior = "green" if change < 0 else "red"
+                            color_anterior = obtener_color(change,resultado["direction"])
                             st.markdown(f"Reciente vs anterior: <span style='color:{color_anterior};'><strong>{change:+.1f}%</strong></span>",unsafe_allow_html=True)
                         else:
                             st.markdown("Reciente vs anterior: **N/A**")
                         if cagr is not None:
-                            if resultado["direction"] == "neutral":
-                                color_cagr = "gray"
-                            elif resultado["direction"] == "direct":
-                                color_cagr = "green" if cagr > 0 else "red"
-                            else:
-                                color_cagr = "green" if cagr < 0 else "red"
+                            color_cagr = obtener_color(cagr,resultado["direction"])
                             st.markdown(f"CAGR: <span style='color:{color_cagr};'><strong>{cagr:+.1%}</strong></span>",unsafe_allow_html=True)
                         else:
                             st.markdown("CAGR: **N/A**")
                         if change_antiguo is not None:
-                            if resultado["direction"] == "neutral":
-                                color_antiguo = "gray"
-                            elif resultado["direction"] == "direct":
-                                color_antiguo = "green" if change_antiguo > 0 else "red"
-                            else:
-                                color_antiguo = "green" if change_antiguo < 0 else "red"
+                            color_antiguo = obtener_color(change_antiguo,resultado["direction"])
                             st.markdown(f"Reciente vs el más antiguo: <span style='color:{color_antiguo};'><strong>{change_antiguo:+.1f}%</strong></span>",unsafe_allow_html=True)
                         else:
                             st.markdown("Reciente vs el más antiguo: **N/A**")
@@ -393,4 +339,3 @@ def normalizar_datos(datos_y):
     for columna in datos_norm.columns[1:]:
         datos_norm[columna] = datos_norm[columna] / datos_norm[columna].iloc[0] * 100
     return datos_norm
-
