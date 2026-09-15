@@ -50,7 +50,7 @@ def financial_charts(data,x_column,metrics):
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Revenue vs FCF vs CapEx</h4>",unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;'>Calidad crecimiento</h4>",unsafe_allow_html=True)
         chart_data = datos_norm[["fiscal_year","revenue","fcf","capex"]]
         fig = px.line(chart_data,x="fiscal_year",y=["revenue","fcf","capex"],markers=True,
         color_discrete_sequence=["#2382CA","#533F8A","#329356"])
@@ -58,7 +58,7 @@ def financial_relational_charts(datos_norm):
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Operating Margin vs ROIC vs CapEx</h4>",unsafe_allow_html=True)
+        st.markdown("<h4 style='text-align: center;'>Calidad rentabilidad</h4>",unsafe_allow_html=True)
         chart_data = datos_norm[["fiscal_year","operating_margin","roic","capex"]]
         fig = px.line(chart_data,x="fiscal_year",y=["operating_margin","roic","capex"],markers=True,
         color_discrete_sequence=["#2382CA","#533F8A","#329356"])
@@ -66,12 +66,28 @@ def financial_relational_charts(datos_norm):
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Revenue vs Operating Margin vs EBITDA/Deuda</h4>",unsafe_allow_html=True)
-        chart_data = datos_norm[["fiscal_year","revenue","operating_margin","ebitda_deuda"]]
-        fig = px.line(chart_data,x="fiscal_year",y=["revenue","operating_margin","ebitda_deuda"],markers=True,
+        st.markdown("<h4 style='text-align: center;'>Solvencia financiera</h4>",unsafe_allow_html=True)
+        chart_data = datos_norm[["fiscal_year","fcf","operating_margin","ebitda_deuda"]]
+        fig = px.line(chart_data,x="fiscal_year",y=["fcf","operating_margin","ebitda_deuda"],markers=True,
         color_discrete_sequence=["#2382CA","#533F8A","#329356"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
+
+    with st.container(border=True):
+        st.markdown("<h4 style='text-align: center;'>Liquidez financiera</h4>",unsafe_allow_html=True)
+        chart_data = datos_norm[["fiscal_year","fcf","fcf_margin","current_ratio"]]
+        fig = px.line(chart_data,x="fiscal_year",y=["fcf","fcf_margin","current_ratio"],markers=True,
+        color_discrete_sequence=["#2382CA","#533F8A","#329356"])
+        configurar_grafico(fig)
+        mostrar_grafico(fig)
+
+    with st.container(border=True):
+                st.markdown("<h4 style='text-align: center;'>Apalancamiento</h4>",unsafe_allow_html=True)
+                chart_data = datos_norm[["fiscal_year","revenue","roic","debt_equity"]]
+                fig = px.line(chart_data,x="fiscal_year",y=["revenue","roic","debt_equity"],markers=True,
+                color_discrete_sequence=["#2382CA","#533F8A","#329356"])
+                configurar_grafico(fig)
+                mostrar_grafico(fig) 
 
 # GRÁFICOS BURSÁTIL FINANCIEROS
 def financial_market_relational_charts(datos_norm):
@@ -100,9 +116,9 @@ def financial_market_relational_charts(datos_norm):
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>P/FCF vs Current Ratio</h4>",unsafe_allow_html=True)
-        chart_data = datos_norm[["fiscal_year","p_fcf","current_ratio"]]
-        fig = px.line(chart_data,x="fiscal_year",y=["p_fcf","current_ratio"],markers=True,
+        st.markdown("<h4 style='text-align: center;'>P/FCF vs FCF Margin</h4>",unsafe_allow_html=True)
+        chart_data = datos_norm[["fiscal_year","p_fcf","fcf_margin"]]
+        fig = px.line(chart_data,x="fiscal_year",y=["p_fcf","fcf_margin"],markers=True,
         color_discrete_sequence=["#2382CA","#533F8A"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
