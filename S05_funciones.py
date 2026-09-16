@@ -27,6 +27,7 @@ def calcular_metricas(metricas_y, metric):
     }
     return resultados
 
+# Tendencia
 def determinar_tendencia(metricas_q, metric):
     datos = metricas_q[metric].dropna()
     antiguo = datos.iloc[0]
@@ -41,31 +42,35 @@ def determinar_tendencia(metricas_q, metric):
     total_variaciones = len(variaciones)
     umbral_16 = max(1, int(total_variaciones * 0.68)) # ~13 de 19
 
-    # ----------------------------------------------------
     # TENDENCIA ALCISTA
-    # ----------------------------------------------------
     if cambio_global >= 0.30:
         cumple_pasos = (variaciones >= 0.02).sum() >= umbral_16
         pos_fallas = [i for i, v in enumerate(variaciones) if v < 0.02]
         tiene_caida_grave = any(variaciones.iloc[i] < -0.2 for i in pos_fallas)
-        consecutivas = len(pos_fallas) > 1 and any(pos_fallas[i+1] - pos_fallas[i] == 1 for i in range(len(pos_fallas)-1))
+        tres_consecutivas = len(pos_fallas) > 2 and any(
+        pos_fallas[i + 2] - pos_fallas[i] == 2 and pos_fallas[i + 1] - pos_fallas[i] == 1
+        for i in range(len(pos_fallas) - 2)
+                                        )
         
-        if cumple_pasos and (not tiene_caida_grave) and (not consecutivas):
+        if cumple_pasos and (not tiene_caida_grave) and (not tres_consecutivas):
             return "Alcista"
 
-    # ----------------------------------------------------
     # TENDENCIA BAJISTA
-    # ----------------------------------------------------
     elif cambio_global < -0.30:
         cumple_pasos = (variaciones <= -0.02).sum() >= umbral_16
         pos_fallas = [i for i, v in enumerate(variaciones) if v > -0.02]
         tiene_rebote_grave = any(variaciones.iloc[i] > 0.2 for i in pos_fallas)
-        consecutivas = len(pos_fallas) > 1 and any(pos_fallas[i+1] - pos_fallas[i] == 1 for i in range(len(pos_fallas)-1))
+        tres_consecutivas = len(pos_fallas) > 2 and any(
+        pos_fallas[i + 2] - pos_fallas[i] == 2 and pos_fallas[i + 1] - pos_fallas[i] == 1
+        for i in range(len(pos_fallas) - 2)
+                                        )
         
-        if cumple_pasos and (not tiene_rebote_grave) and (not consecutivas):
+        if cumple_pasos and (not tiene_rebote_grave) and (not tres_consecutivas):
             return "Bajista"
 
     return "Lateral / No Definida"
+
+
 
 # SELECCIÓN DE DATOS
 def get_company_data(metricas_y, metricas_q, valoraciones_y, valoraciones_q, period):
