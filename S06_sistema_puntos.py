@@ -41,8 +41,8 @@ def sistema_puntos(data):
         ajuste += evaluacion["tendencia"] * peso
         return ajuste
     # REVENUE
-    if "revenue" in evaluaciones:
-        evaluacion = evaluaciones["revenue"]
+    if "Revenue" in evaluaciones:
+        evaluacion = evaluaciones["Revenue"]
         cagr = evaluacion["cagr"]
         if cagr is not None:
             rangos = [
@@ -52,10 +52,10 @@ def sistema_puntos(data):
             ]
             puntaje = calcular_puntaje(cagr,rangos)
             ajuste = calcular_ajuste(evaluacion,0.25,usar_cagr=False)
-            resultados["revenue"] = min(max(puntaje + ajuste,0),10)
+            resultados["Revenue"] = min(max(puntaje + ajuste,0),10)
     # FCF
-    if "fcf" in evaluaciones:
-        evaluacion = evaluaciones["fcf"]
+    if "FCF" in evaluaciones:
+        evaluacion = evaluaciones["FCF"]
         cagr = evaluacion["cagr"]
         if cagr is not None:
             rangos = [
@@ -65,11 +65,11 @@ def sistema_puntos(data):
             ]
             puntaje = calcular_puntaje(cagr,rangos)
             ajuste = calcular_ajuste(evaluacion,0.25,usar_cagr=False)
-            resultados["fcf"] = min(max(puntaje + ajuste,0),10)
+            resultados["FCF"] = min(max(puntaje + ajuste,0),10)
     # OPERATING MARGIN
-    if "operating_margin" in evaluaciones:
-        evaluacion = evaluaciones["operating_margin"]
-        reciente = data["operating_margin"].iloc[-1]
+    if "Operating Margin" in evaluaciones:
+        evaluacion = evaluaciones["Operating Margin"]
+        reciente = data["Operating Margin"].iloc[-1]
         rangos = [
             (0.30,9,False),(0.20,8,False),(0.15,7,False),
             (0.10,6,False),(0.07,5,False),(0.05,4,False),
@@ -77,11 +77,11 @@ def sistema_puntos(data):
         ]
         puntaje = calcular_puntaje(reciente,rangos)
         ajuste = calcular_ajuste(evaluacion,0.2)
-        resultados["operating_margin"] = min(max(puntaje + ajuste,0),10)
+        resultados["Operating Margin"] = min(max(puntaje + ajuste,0),10)
     # ROIC
-    if "roic" in evaluaciones:
-        evaluacion = evaluaciones["roic"]
-        reciente = data["roic"].iloc[-1]
+    if "ROIC" in evaluaciones:
+        evaluacion = evaluaciones["ROIC"]
+        reciente = data["ROIC"].iloc[-1]
         rangos = [
             (0.30,9,False),(0.20,8,False),(0.15,7,False),
             (0.10,6,False),(0.07,5,False),(0.05,4,False),
@@ -89,11 +89,11 @@ def sistema_puntos(data):
         ]
         puntaje = calcular_puntaje(reciente,rangos)
         ajuste = calcular_ajuste(evaluacion,0.2)
-        resultados["roic"] = min(max(puntaje + ajuste,0),10)
+        resultados["ROIC"] = min(max(puntaje + ajuste,0),10)
     # FCF MARGIN
-    if "fcf_margin" in evaluaciones:
-        evaluacion = evaluaciones["fcf_margin"]
-        reciente = data["fcf_margin"].iloc[-1]
+    if "FCF margin" in evaluaciones:
+        evaluacion = evaluaciones["FCF margin"]
+        reciente = data["FCF margin"].iloc[-1]
         rangos = [
             (0.225,9,False),(0.15,8,False),(0.10,7,False),
             (0.07,6,False),(0.05,5,False),(0.04,4,False),
@@ -101,11 +101,11 @@ def sistema_puntos(data):
         ]
         puntaje = calcular_puntaje(reciente,rangos)
         ajuste = calcular_ajuste(evaluacion,0.2)
-        resultados["fcf_margin"] = min(max(puntaje + ajuste,0),10)
+        resultados["FCF margin"] = min(max(puntaje + ajuste,0),10)
     # DEBT TO EQUITY
-    if "debt_equity" in evaluaciones:
-        evaluacion = evaluaciones["debt_equity"]
-        reciente = data["debt_equity"].iloc[-1]
+    if "Debt/Equity" in evaluaciones:
+        evaluacion = evaluaciones["Debt/Equity"]
+        reciente = data["Debt/Equity"].iloc[-1]
         rangos = [
             (0.2,9,True),(0.4,8,False),(0.6,7,False),
             (0.8,6,False),(1.0,5,False),(1.4,4,False),
@@ -113,11 +113,11 @@ def sistema_puntos(data):
         ]
         puntaje = calcular_puntaje(reciente,rangos,"inverse")
         ajuste = calcular_ajuste(evaluacion,0.2,"inverse")
-        resultados["debt_equity"] = min(max(puntaje + ajuste,0),10)
+        resultados["Debt/Equity"] = min(max(puntaje + ajuste,0),10)
     # DEBT TO EBITDA
-    if "debt_ebitda" in evaluaciones:
-        evaluacion = evaluaciones["debt_ebitda"]
-        reciente = data["debt_ebitda"].iloc[-1]
+    if "Debt/EBITDA" in evaluaciones:
+        evaluacion = evaluaciones["Debt/EBITDA"]
+        reciente = data["Debt/EBITDA"].iloc[-1]
         rangos = [
             (0.5,9,True),(1.0,8,False),(1.5,7,False),
             (2.0,6,False),(2.5,5,False),(3.0,4,False),
@@ -125,11 +125,11 @@ def sistema_puntos(data):
         ]
         puntaje = calcular_puntaje(reciente,rangos,"inverse")
         ajuste = calcular_ajuste(evaluacion,0.2,"inverse")
-        resultados["debt_ebitda"] = min(max(puntaje + ajuste,0),10)
+        resultados["Debt/EBITDA"] = min(max(puntaje + ajuste,0),10)
     # CURRENT RATIO
-    if "current_ratio" in evaluaciones:
-        evaluacion = evaluaciones["current_ratio"]
-        reciente = data["current_ratio"].iloc[-1]
+    if "Current ratio" in evaluaciones:
+        evaluacion = evaluaciones["Current ratio"]
+        reciente = data["Current ratio"].iloc[-1]
         rangos = [
             (2.5,9,True),(2.2,8,False),(1.9,7,False),
             (1.6,6,False),(1.3,5,False),(1.1,4,False),
@@ -145,6 +145,6 @@ def sistema_puntos(data):
         elif reciente > 2.5:
             puntaje = min(puntaje,8)
         ajuste = calcular_ajuste(evaluacion,0.2)
-        resultados["current_ratio"] = min(max(puntaje + ajuste,0),10)
+        resultados["Current ratio"] = min(max(puntaje + ajuste,0),10)
 
     return resultados

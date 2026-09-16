@@ -51,38 +51,28 @@ def consultar_web(ticker):
         "Return on Invested Capital (ROIC)": "ROIC","Capital Expenditures": "CapEx",
         "Free Cash Flow": "FCF","Free Cash Flow Margin": "FCF margin","Debt / EBITDA Ratio": "Debt/EBITDA",
         "Debt / Equity Ratio": "Debt/Equity","Current Ratio": "Current ratio","PS Ratio": "P/S",
-        "PE Ratio": "P/E","PB Ratio": "P/B","P/FCF Ratio": "P/FCF"
+        "PE Ratio": "P/E","PB Ratio": "P/B","P/FCF Ratio": "P/FCF", "Last Close Price":"Precio", "Market Capitalization": "Marketcap"
     }
 
     def procesar_datos(urls, nombre_periodo):
         # BUSCAR DATOS EN LAS 3 URLs
         datos = []
         datos_encontrados = set()
-        precio_actual = None
-        marketcap_actual = None
         for url in urls:
             respuesta = requests.get(url, headers=headers)
             tablas = pd.read_html(StringIO(respuesta.text))
             for tabla in tablas:
                 filas = tabla[tabla.iloc[:, 0].isin(datos_buscar)]
                 if not filas.empty:
-                    if "Current" in tabla.columns.get_level_values(0):
-                        for _, fila in filas.iterrows():
-                            if fila.iloc[0] == "Last Close Price":
-                                precio_actual = fila["Current"].iloc[0]
-                            elif fila.iloc[0] == "Market Capitalization":
-                                marketcap_actual = fila["Current"].iloc[0]
                     filas = filas[~filas.iloc[:, 0].isin(datos_encontrados)]
                     if not filas.empty:
                         datos.append(filas)
                         datos_encontrados.update(filas.iloc[:, 0])
         # CONVERTIR A DATAFRAME
         datos = pd.concat(datos, ignore_index=True)
-        # ELIMINAR TTM Y CURRENT
+        # ELIMINAR TTM
         if "TTM" in datos.columns.get_level_values(0):
             datos = datos.drop(columns=["TTM"], level=0)
-        if "Current" in datos.columns.get_level_values(0):
-            datos = datos.drop(columns=["Current"], level=0)
         # CONVERTIR ENCABEZADOS EN UNA FILA DE DATOS
         datos.loc[-1] = datos.columns.get_level_values(0).tolist()
         datos.index = datos.index + 1
@@ -101,77 +91,46 @@ def consultar_web(ticker):
         datos = datos.iloc[:, 1:]
         # CAMBIAR NOMBRES
         datos = datos.rename(columns=nombres_columnas)
+        # CAMBIAR CURRENT POR ACTUAL
+        datos[nombre_periodo] = datos[nombre_periodo].replace("Current","Actual")
         # CONVERTIR "-" A NONE
         datos = datos.replace("-",0)
         datos = datos.fillna(0)
-        # PASAR CAPEX A POSITIVO
         # PASAR CAPEX A NUMERO POSITIVO
         datos["CapEx"] = pd.to_numeric(datos["CapEx"]).abs()   
         # CONVERTIR MÁRGENES A DECIMAL
         columnas_margen = ["Operating Margin", "FCF margin", "ROIC"]
         for columna in columnas_margen:
-            datos[columna] = (datos[columna].astype(str).str.replace("%", "", regex=False).astype(float)/ 100)
-        return datos, precio_actual, marketcap_actual
+            datos[columna] = (datos[columna].astype(str).str.replace("%", "", regex=False).astype(float))
+        # QUitar comas de marketcap
+        datos["Marketcap"] = datos["Marketcap"].astype(str).str.replace(",", "", regex=False)
+        # CAMBIAR TIPO
+        columnas_int = ["Revenue","FCF","CapEx", "Marketcap"]
+        columnas_float = ["Operating Margin","FCF margin","Debt/Equity","Debt/EBITDA","Current ratio",
+                          "ROIC","Precio","P/E","P/S","P/B","P/FCF"]
+        datos[columnas_int] = datos[columnas_int].astype(int)
+        datos[columnas_float] = datos[columnas_float].astype(float)
+        # SEPARAR MÉTRICAS Y VALORACIONES
+        metricas = datos[[nombre_periodo,"Revenue","FCF","Operating Margin","FCF margin","CapEx",
+            "Debt/Equity","Debt/EBITDA","Current ratio","ROIC"]]
+        valoraciones = datos[[nombre_periodo,"P/E","P/S","P/B","P/FCF"]]
+        mercado = datos[[nombre_periodo,"Precio","Marketcap"]]
+        # INVERTIR LISTA
+        metricas = metricas.iloc[::-1].reset_index(drop=True)
+        valoraciones = valoraciones.iloc[::-1].reset_index(drop=True)
+        mercado = mercado.iloc[::-1].reset_index(drop=True)
+        metricas = metricas[metricas.iloc[:, 0] != "Actual"].reset_index(drop=True)
+        actual = valoraciones[valoraciones.iloc[:, 0] == "Actual"]
+        valoraciones = valoraciones[valoraciones.iloc[:, 0] != "Actual"]
+        valoraciones = pd.concat([valoraciones,actual],ignore_index=True)
+        actual = mercado[mercado.iloc[:, 0] == "Actual"]
+        mercado = mercado[mercado.iloc[:, 0] != "Actual"]
+        mercado = pd.concat([mercado,actual],ignore_index=True)
+        
+        return metricas, valoraciones, mercado
 
     # DATOS ANUALES Y TRIMESTRALES
-    datos_y, precio_actual, marketcap_actual = procesar_datos(urls_y, "Fiscal Year")
-    datos_q, _, _ = procesar_datos(urls_q, "Fiscal Quarter")
-    return nombre, datos_y, datos_q, precio_actual, marketcap_actual
+    metricas_y, valoraciones_y, mercado_y = procesar_datos(urls_y, "Fiscal Year")
+    metricas_q, valoraciones_q, mercado_q = procesar_datos(urls_q, "Fiscal Quarter")
 
-# RENOMBRAR
-def no_sql_renombrar(datos_y,datos_q,precio_actual,marketcap_actual):
-    datos_y = datos_y.rename(columns={
-        "Fiscal Year": "fiscal_year",
-        "Revenue": "revenue",
-        "FCF": "fcf",
-        "Operating Margin": "operating_margin",
-        "FCF margin": "fcf_margin",
-        "CapEx": "capex",
-        "P/E": "pe",
-        "P/S": "ps",
-        "P/B": "pb",
-        "P/FCF": "p_fcf",
-        "Debt/Equity": "debt_equity",
-        "Debt/EBITDA": "debt_ebitda",
-        "Current ratio": "current_ratio",
-        "ROIC": "roic",
-        "Last Close Price": "precio",
-        "Market Capitalization": "marketcap"
-    })
-    datos_q = datos_q.rename(columns={
-        "Fiscal Quarter": "fiscal_quarter",
-        "Revenue": "revenue",
-        "FCF": "fcf",
-        "Operating Margin": "operating_margin",
-        "FCF margin": "fcf_margin",
-        "CapEx": "capex",
-        "P/E": "pe",
-        "P/S": "ps",
-        "P/B": "pb",
-        "P/FCF": "p_fcf",
-        "Debt/Equity": "debt_equity",
-        "Debt/EBITDA": "debt_ebitda",
-        "Current ratio": "current_ratio",
-        "ROIC": "roic",
-        "Last Close Price": "precio",
-        "Market Capitalization": "marketcap"
-    })
-
-    return datos_y,datos_q,precio_actual,marketcap_actual
-
-# CAMBIAR TIPO E INVERTIR LISTA
-def cambiar_tipo(datos_y,datos_q,precio_actual,marketcap_actual):
-    columnas_int = ["revenue","fcf","capex","marketcap"]
-    columnas_float = ["operating_margin","fcf_margin","pe","ps","pb","p_fcf","debt_equity","debt_ebitda","current_ratio","roic","precio"]
-    datos_y["fiscal_year"] = datos_y["fiscal_year"].astype(str)
-    datos_q["fiscal_quarter"] = datos_q["fiscal_quarter"].astype(str)
-    datos_y[columnas_int] = datos_y[columnas_int].astype(int)
-    datos_q[columnas_int] = datos_q[columnas_int].astype(int)
-    datos_y[columnas_float] = datos_y[columnas_float].astype(float)
-    datos_q[columnas_float] = datos_q[columnas_float].astype(float)
-    datos_y = datos_y.iloc[::-1].reset_index(drop=True)
-    datos_q = datos_q.iloc[::-1].reset_index(drop=True)
-    precio_actual = float(precio_actual)
-    marketcap_actual = int(marketcap_actual)
-
-    return datos_y,datos_q,precio_actual,marketcap_actual
+    return nombre, metricas_y, metricas_q, valoraciones_y, valoraciones_q, mercado_y, mercado_q

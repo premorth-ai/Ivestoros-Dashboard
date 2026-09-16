@@ -5,18 +5,10 @@ from S02_datos import industrias
 def configurar_interface():
     st.set_page_config(page_title="Investoros Dashboard",layout="wide")
     st.markdown("""<style>
-    .st-key-componentes button,
-    .st-key-componentes button:hover,
-    .st-key-componentes button:focus,
-    .st-key-componentes button:active,
-    .st-key-relacional button,
-    .st-key-relacional button:hover,
-    .st-key-relacional button:focus,
-    .st-key-relacional button:active,
-    .st-key-analisis button,
-    .st-key-analisis button:hover,
-    .st-key-analisis button:focus,
-    .st-key-analisis button:active {
+    .st-key-componentes button,.st-key-componentes button:hover,.st-key-componentes button:focus,
+    .st-key-componentes button:active,.st-key-relacional button,.st-key-relacional button:hover,
+    .st-key-relacional button:focus,.st-key-relacional button:active,.st-key-analisis button,
+    .st-key-analisis button:hover,.st-key-analisis button:focus,.st-key-analisis button:active {
         background-color: #d2d2d2 !important;
         border-color: #333333 !important;
     }
@@ -46,28 +38,26 @@ def mostrar_interface(reset_dashboard):
     return ticker,period
 
 # HEADER
-def mostrar_header(empresa,precio_actual,marketcap_actual):
+def mostrar_header(empresa,mercado):
     with st.container():
-        marketcap_actual = marketcap_actual/1000
         st.markdown(f"# ANÁLISIS DE: {empresa.upper()}")
-        st.markdown(f"**Precio último cierre:** ${precio_actual}")
-        st.markdown(f"**Market Cap último cierre:** {marketcap_actual:,.2f} B")
-
+        st.markdown(f"**Precio último cierre:** ${mercado.loc[mercado.iloc[:, 0] == "Actual","Precio"].iloc[0]}")
+        st.markdown(f"**Market Cap último cierre:** {mercado.loc[mercado.iloc[:, 0] == "Actual","Marketcap"].iloc[0]/1000:,.2f} B")
 
 # CONTENIDO
-def mostrar_contenido(financial_section,financial_relational_section,financial_market_relational_section,data,x_column,datos_norm):
+def mostrar_contenido(financial_section,financial_relational_section,financial_market_relational_section,data,x_column,datos_norm,valoraciones,valoraciones_norm):
     if st.session_state.section == "Crecimiento":
-        financial_section(data,x_column,"Crecimiento",["revenue","capex","fcf"])
+        financial_section(data,x_column,"Crecimiento",["Revenue","CapEx","FCF"])
     elif st.session_state.section == "Rentabilidad":
-        financial_section(data,x_column,"Rentabilidad",["operating_margin","roic","fcf_margin"])
+        financial_section(data,x_column,"Rentabilidad",["Operating Margin","ROIC","FCF margin"])
     elif st.session_state.section == "Solidez financiera":
-        financial_section(data,x_column,"Solidez financiera",["debt_ebitda","debt_equity","current_ratio"])
+        financial_section(data,x_column,"Solidez financiera",["Debt/EBITDA","Debt/Equity","Current ratio"])
     elif st.session_state.section == "Valoraciones":
-        financial_section(data,x_column,"Valoraciones",["ps","pe","pb","p_fcf"])
+        financial_section(valoraciones,x_column,"Valoraciones",["P/S","P/E","P/B","P/FCF"])
     elif st.session_state.section == "Financiero":
         financial_relational_section(datos_norm)
     elif st.session_state.section == "Bursátil financiero":
-        financial_market_relational_section(datos_norm)
+        financial_market_relational_section(datos_norm,valoraciones_norm)
 
 # NAVEGACION
 def navigation():
