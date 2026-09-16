@@ -58,7 +58,7 @@ else:
 # HEADER
 if ticker:
     mostrar_header(empresa,precio_actual,marketcap_actual)
-    price_chart(data,x_column,precio_actual)
+    price_chart(datos_q,precio_actual)
 
 # NAVEGACIÓN
 navigation()

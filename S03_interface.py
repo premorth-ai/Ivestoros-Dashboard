@@ -59,7 +59,7 @@ def mostrar_contenido(financial_section,financial_relational_section,financial_m
     if st.session_state.section == "Crecimiento":
         financial_section(data,x_column,"Crecimiento",["revenue","capex","fcf"])
     elif st.session_state.section == "Rentabilidad":
-        financial_section(data,x_column,"Rentabilidad",["operating_margin","roic","fcf_margin"],["operating_margin","roic","fcf_margin"])
+        financial_section(data,x_column,"Rentabilidad",["operating_margin","roic","fcf_margin"])
     elif st.session_state.section == "Solidez financiera":
         financial_section(data,x_column,"Solidez financiera",["debt_ebitda","debt_equity","current_ratio"])
     elif st.session_state.section == "Valoraciones":
