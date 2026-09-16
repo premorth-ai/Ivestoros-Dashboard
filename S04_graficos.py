@@ -39,7 +39,7 @@ def price_chart(data):
             st.dataframe(tabla_data,use_container_width=True)
 
 # GRÁFICOS DE MÉTRICAS
-def financial_metric_charts(metricas,x_column,metrics):
+def financial_metric_charts(metricas,x_column,metrics,calculos,period):
     columnas = st.columns(len(metrics))
     for columna,metric in zip(columnas,metrics):
         with columna:
@@ -60,19 +60,6 @@ def financial_metric_charts(metricas,x_column,metrics):
                 tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
                 with tab_grafico:
                     mostrar_grafico(fig)
-                    dato_actual = metricas[metric].iloc[-1]
-                    if metric in ["Revenue","CapEx","FCF"]:
-                        st.markdown(f"**Dato Actual:** ${dato_actual:,.0f} M")
-                    elif metric in ["Operating Margin","FCF margin","ROIC"]:
-                        st.markdown(f"**Dato Actual:** {dato_actual:,.2f}%")
-                    else:
-                        st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
-                    st.markdown(f"Puntaje: ")
-                    with st.expander("Mostrar más"):
-                        st.write("Actual vs anterior: ")
-                        st.write("Actual vs último: ")
-                        st.write("Actual vs 5YA: ")
-                        st.write("CAGR: ")
                 with tab_datos:
                     tabla_data = metricas[[x_column,metric]].set_index(x_column)
                     if metric in ["Revenue","CapEx","FCF"]:
@@ -83,6 +70,22 @@ def financial_metric_charts(metricas,x_column,metrics):
                             column_config={metric: st.column_config.NumberColumn(format="%.2f%%")})
                     else:
                         st.dataframe(tabla_data,use_container_width=True)
+                dato_actual = metricas[metric].iloc[-1]
+                if metric in ["Revenue","CapEx","FCF"]:
+                    st.markdown(f"**Dato Actual:** ${dato_actual:,.0f} M")
+                elif metric in ["Operating Margin","FCF margin","ROIC"]:
+                    st.markdown(f"**Dato Actual:** {dato_actual:,.2f}%")
+                else:
+                    st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
+                if period == "Fiscal Quarter":
+                    st.markdown("**Tendencia:** ")
+                else:
+                    calculo = calculos[metric]
+                    with st.expander("Mostrar más"):
+                        st.write(f"Actual vs anterior: {calculo['Actual vs anterior']:,.2f}%")
+                        st.write(f"Actual vs más antiguo: {calculo['Actual vs más antiguo']:,.2f}%")
+                        st.write(f"Actual vs 5YA: {calculo['Actual vs 5YA']:,.2f}%")
+                        st.write(f"CAGR: {calculo['CAGR']:,.2f}%")
 
 # GRÁFICOS DE VALORACIONES
 def financial_valuation_charts(valoraciones,x_column,metrics):
@@ -101,18 +104,21 @@ def financial_valuation_charts(valoraciones,x_column,metrics):
                 tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
                 with tab_grafico:
                     mostrar_grafico(fig)
-                    dato_actual = valoraciones[metric].iloc[-1]
-                    st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
-                    with st.expander("Mostrar más"):
-                        st.write("Actual vs 5YA: ")
-                        st.write("Actual vs industria: ")
-                        st.write("Actual vs industria 5YA: ")
                 with tab_datos:
                     tabla_data = valoraciones[[x_column,metric]].set_index(x_column)
                     st.dataframe(tabla_data,use_container_width=True)
+                dato_actual = valoraciones[metric].iloc[-1]
+                st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
+                with st.expander("Mostrar más"):
+                    st.write("Actual vs 5YA: ")
+                    st.write("Actual vs industria: ")
+                    st.write("Actual vs industria 5YA: ")
 
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):
+    with st.container(border=True):
+        st.markdown("<h3 style='text-align: center;'>Relaciones financieras (datos normalizados)</h3>",unsafe_allow_html=True)
+
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center;'>Calidad crecimiento</h4>",unsafe_allow_html=True)
         chart_data = datos_norm[["Fiscal Year","Revenue","FCF","CapEx"]]
@@ -151,11 +157,14 @@ def financial_relational_charts(datos_norm):
                 fig = px.line(chart_data,x="Fiscal Year",y=["Revenue","ROIC","Debt/Equity"],markers=True,
                 color_discrete_sequence=["#2382CA","#533F8A","#329356"])
                 configurar_grafico(fig)
-                mostrar_grafico(fig) 
+                mostrar_grafico(fig)
 
 # GRÁFICOS BURSÁTIL FINANCIEROS
 def financial_market_relational_charts(datos_norm,valoraciones_norm):
     datos = datos_norm.merge(valoraciones_norm,on="Fiscal Year")
+    with st.container(border=True):
+        st.markdown("<h3 style='text-align: center;'>Relaciones Bursátiles (Datos normalizados)</h3>",unsafe_allow_html=True)
+
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center;'>P/E vs EBITDA/Deuda</h4>",unsafe_allow_html=True)
         chart_data = datos[["Fiscal Year","P/E","Debt/EBITDA"]]

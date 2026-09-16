@@ -1,11 +1,9 @@
 import streamlit as st
-
 from S02_datos import consultar_web
 from S03_interface import (mostrar_interface,configurar_interface,mostrar_header,mostrar_contenido,navigation)
-from S05_funciones import (
-    financial_section,financial_relational_section,financial_market_relational_section,
-    get_company_data,inicializar_estado,reset_dashboard,validar_ticker,normalizar_datos)
-from S04_graficos import price_chart
+from S04_graficos import price_chart,financial_relational_charts,financial_market_relational_charts
+from S05_funciones import (financial_section,get_company_data,inicializar_estado,
+                           reset_dashboard,validar_ticker,normalizar_datos)
 
 
 # CONFIGURACIÓN
@@ -69,5 +67,5 @@ navigation()
 
 # CONTENIDO
 if ticker:
-    mostrar_contenido(financial_section,financial_relational_section,
-    financial_market_relational_section,data,x_column,datos_norm,valoraciones,valoraciones_norm)
+    mostrar_contenido(financial_section,financial_relational_charts,
+    financial_market_relational_charts,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period)

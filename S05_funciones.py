@@ -2,24 +2,28 @@ import streamlit as st
 from S04_graficos import financial_metric_charts,financial_valuation_charts,financial_relational_charts,financial_market_relational_charts
 
 # SECCIONES FINANCIERAS INDIVIDUALES
-def financial_section(data,x_column,title,metrics):
+def financial_section(data,x_column,title,metrics,metricas_y,period):
     with st.container(border=True):
         st.markdown(f"<h3 style='text-align: center;'>{title}</h3>",unsafe_allow_html=True)
     if title == "Valoraciones":
         financial_valuation_charts(data,x_column,metrics)
     else:
-        financial_metric_charts(data,x_column,metrics)
+        calculos = {metric: calcular_metricas(metricas_y,metric) for metric in metrics}
+        financial_metric_charts(data,x_column,metrics,calculos,period)
 
-# SECCIONES FINANCIERAS RELACIONADAS
-def financial_relational_section(datos_norm):
-    with st.container(border=True):
-        st.markdown("<h3 style='text-align: center;'>Relaciones financieras (datos normalizados)</h3>",unsafe_allow_html=True)
-    financial_relational_charts(datos_norm)
-
-def financial_market_relational_section(datos_norm,valoraciones_norm):
-    with st.container(border=True):
-        st.markdown("<h3 style='text-align: center;'>Relaciones Bursátiles (Datos normalizados)</h3>",unsafe_allow_html=True)
-    financial_market_relational_charts(datos_norm,valoraciones_norm)
+# CÁLCULO DE MÉTRICAS
+def calcular_metricas(metricas_y,metric):
+    actual = metricas_y[metric].iloc[-1]
+    anterior = metricas_y[metric].iloc[-2]
+    antiguo = metricas_y[metric].iloc[0]
+    promedio_5ya = metricas_y[metric].iloc[:-1].mean()
+    resultados = {
+        "Actual vs anterior": (actual / anterior - 1) * 100,
+        "Actual vs más antiguo": (actual / antiguo - 1) * 100,
+        "Actual vs 5YA": (actual / promedio_5ya - 1) * 100,
+        "CAGR": ((actual / antiguo) ** (1 / (len(metricas_y) - 1)) - 1) * 100
+    }
+    return resultados
 
 # SELECCIÓN DE DATOS
 def get_company_data(metricas_y,metricas_q,valoraciones_y,valoraciones_q,period):

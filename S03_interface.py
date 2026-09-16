@@ -45,19 +45,19 @@ def mostrar_header(empresa,mercado):
         st.markdown(f"**Market Cap último cierre:** {mercado.loc[mercado.iloc[:, 0] == "Actual","Marketcap"].iloc[0]/1000:,.2f} B")
 
 # CONTENIDO
-def mostrar_contenido(financial_section,financial_relational_section,financial_market_relational_section,data,x_column,datos_norm,valoraciones,valoraciones_norm):
+def mostrar_contenido(financial_section,financial_relational_charts,financial_market_relational_charts,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period):
     if st.session_state.section == "Crecimiento":
-        financial_section(data,x_column,"Crecimiento",["Revenue","CapEx","FCF"])
+        financial_section(data,x_column,"Crecimiento",["Revenue","CapEx","FCF"],metricas_y,period)
     elif st.session_state.section == "Rentabilidad":
-        financial_section(data,x_column,"Rentabilidad",["Operating Margin","ROIC","FCF margin"])
+        financial_section(data,x_column,"Rentabilidad",["Operating Margin","ROIC","FCF margin"],metricas_y,period)
     elif st.session_state.section == "Solidez financiera":
-        financial_section(data,x_column,"Solidez financiera",["Debt/EBITDA","Debt/Equity","Current ratio"])
+        financial_section(data,x_column,"Solidez financiera",["Debt/EBITDA","Debt/Equity","Current ratio"],metricas_y,period)
     elif st.session_state.section == "Valoraciones":
-        financial_section(valoraciones,x_column,"Valoraciones",["P/S","P/E","P/B","P/FCF"])
+        financial_section(valoraciones,x_column,"Valoraciones",["P/S","P/E","P/B","P/FCF"],metricas_y,period)
     elif st.session_state.section == "Financiero":
-        financial_relational_section(datos_norm)
+        financial_relational_charts(datos_norm)
     elif st.session_state.section == "Bursátil financiero":
-        financial_market_relational_section(datos_norm,valoraciones_norm)
+        financial_market_relational_charts(datos_norm,valoraciones_norm)
 
 # NAVEGACION
 def navigation():
