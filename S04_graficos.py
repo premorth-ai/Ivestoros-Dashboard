@@ -3,32 +3,42 @@ import plotly.express as px
 
 color = "#2C3490"
 
-def configurar_grafico(fig,altura=400):
-    fig.update_layout(height=altura,xaxis_title=None,yaxis_title=None,dragmode=False)
+def configurar_grafico(fig, altura=400):
+    fig.update_layout(height=altura, xaxis_title=None, yaxis_title=None, dragmode=False)
     if fig.data[0].type == "scatter":
         fig.update_traces(line=dict(width=3))
 
 def mostrar_grafico(fig):
-    st.plotly_chart(fig,use_container_width=True,
-    config={"scrollZoom":False,"displayModeBar":True,"displaylogo":False,
-    "modeBarButtonsToRemove":["zoom2d","pan2d","select2d",
-    "lasso2d","zoomIn2d","zoomOut2d","autoScale2d","resetScale2d"],
-    "showTips":True})
+    st.plotly_chart(
+        fig,
+        use_container_width=True,
+        config={
+            "scrollZoom": False,
+            "displayModeBar": True,
+            "displaylogo": False,
+            "modeBarButtonsToRemove": [
+                "zoom2d", "pan2d", "select2d",
+                "lasso2d", "zoomIn2d", "zoomOut2d",
+                "autoScale2d", "resetScale2d"
+            ],
+            "showTips": True
+        }
+    )
 
 # GRAFICO PRECIO POR PERIODO
 def price_chart(data):
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Precio por periodo</h4>",unsafe_allow_html=True)
-        chart_data = data[["Fiscal Quarter","Precio"]].copy()
-        chart_data["Fiscal Quarter"] = chart_data["Fiscal Quarter"].astype(str).str.replace("Q4","FY",regex=False)
-        tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
+        st.markdown("<h4 style='text-align: center;'>Precio por periodo</h4>", unsafe_allow_html=True)
+        chart_data = data[["Fiscal Quarter", "Precio"]].copy()
+        chart_data["Fiscal Quarter"] = chart_data["Fiscal Quarter"].astype(str).str.replace("Q4", "FY", regex=False)
+        tab_grafico, tab_datos = st.tabs(["📊 Gráfico", "📋 Datos"])
         with tab_grafico:
-            fig = px.line(chart_data,x="Fiscal Quarter",y="Precio",markers=True)
+            fig = px.line(chart_data, x="Fiscal Quarter", y="Precio", markers=True)
             fig.update_xaxes(
                 tickmode="array",
                 tickvals=chart_data["Fiscal Quarter"],
                 ticktext=[
-                    f"<b>{x}</b>" if x in ["FY","Actual"] else x
+                    f"<b>{x}</b>" if x in ["FY", "Actual"] else x
                     for x in chart_data["Fiscal Quarter"]
                 ]
             )
@@ -36,49 +46,57 @@ def price_chart(data):
             mostrar_grafico(fig)
         with tab_datos:
             tabla_data = chart_data
-            st.dataframe(tabla_data,use_container_width=True)
+            st.dataframe(tabla_data, use_container_width=True)
 
 # GRÁFICOS DE MÉTRICAS
-def financial_metric_charts(metricas,x_column,metrics,calculos,period):
+def financial_metric_charts(metricas, x_column, metrics, calculos, period):
+    # Carga diferida de la función de tendencia
+    from S05_funciones import determinar_tendencia
+
     columnas = st.columns(len(metrics))
-    for columna,metric in zip(columnas,metrics):
+    for columna, metric in zip(columnas, metrics):
         with columna:
             with st.container(border=True):
-                label = {"FCF":"FCF","FCF margin":"FCF Margin"}.get(metric,metric.replace("_"," ").title())
-                st.markdown(f"<h4 style='text-align: center;'>{label}</h4>",unsafe_allow_html=True)
-                chart_data = metricas[[x_column,metric]].set_index(x_column)
-                fig = px.bar(chart_data,x=chart_data.index,y=metric,color_discrete_sequence=[color])
-                fig.update_traces(marker_line_width=1,marker_line_color="#000000")
-                if metric in ["Revenue","CapEx","FCF"]:
+                label = {"FCF": "FCF", "FCF margin": "FCF Margin"}.get(metric, metric.replace("_", " ").title())
+                st.markdown(f"<h4 style='text-align: center;'>{label}</h4>", unsafe_allow_html=True)
+                chart_data = metricas[[x_column, metric]].set_index(x_column)
+                fig = px.bar(chart_data, x=chart_data.index, y=metric, color_discrete_sequence=[color])
+                fig.update_traces(marker_line_width=1, marker_line_color="#000000")
+                if metric in ["Revenue", "CapEx", "FCF"]:
                     fig.update_traces(hovertemplate="$%{y:,.0f} M<extra></extra>")
-                elif metric in ["Operating Margin","FCF margin","ROIC"]:
+                elif metric in ["Operating Margin", "FCF margin", "ROIC"]:
                     fig.update_traces(hovertemplate="%{y:,.2f}%<extra></extra>")
                 else:
                     fig.update_traces(hovertemplate="%{y:,.2f}<extra></extra>")
-                configurar_grafico(fig,300)
-                fig.update_xaxes(type="category",tickmode="array",tickvals=chart_data.index.tolist())
-                tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
+                configurar_grafico(fig, 300)
+                fig.update_xaxes(type="category", tickmode="array", tickvals=chart_data.index.tolist())
+                
+                tab_grafico, tab_datos = st.tabs(["📊 Gráfico", "📋 Datos"])
                 with tab_grafico:
                     mostrar_grafico(fig)
                 with tab_datos:
-                    tabla_data = metricas[[x_column,metric]].set_index(x_column)
-                    if metric in ["Revenue","CapEx","FCF"]:
-                        st.dataframe(tabla_data,use_container_width=True,
-                            column_config={metric: st.column_config.NumberColumn(format="$%,.0f M")})
-                    elif metric in ["Operating Margin","FCF margin","ROIC"]:
-                        st.dataframe(tabla_data,use_container_width=True,
-                            column_config={metric: st.column_config.NumberColumn(format="%.2f%%")})
+                    tabla_data = metricas[[x_column, metric]].set_index(x_column)
+                    if metric in ["Revenue", "CapEx", "FCF"]:
+                        st.dataframe(tabla_data, use_container_width=True,
+                                    column_config={metric: st.column_config.NumberColumn(format="$%,.0f M")})
+                    elif metric in ["Operating Margin", "FCF margin", "ROIC"]:
+                        st.dataframe(tabla_data, use_container_width=True,
+                                    column_config={metric: st.column_config.NumberColumn(format="%.2f%%")})
                     else:
-                        st.dataframe(tabla_data,use_container_width=True)
+                        st.dataframe(tabla_data, use_container_width=True)
+                        
                 dato_actual = metricas[metric].iloc[-1]
-                if metric in ["Revenue","CapEx","FCF"]:
+                if metric in ["Revenue", "CapEx", "FCF"]:
                     st.markdown(f"**Dato Actual:** ${dato_actual:,.0f} M")
-                elif metric in ["Operating Margin","FCF margin","ROIC"]:
+                elif metric in ["Operating Margin", "FCF margin", "ROIC"]:
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}%")
                 else:
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
+                
+                # Evaluación de periodo
                 if period == "Fiscal Quarter":
-                    st.markdown("**Tendencia:** ")
+                    tendencia = determinar_tendencia(metricas, metric)
+                    st.markdown(f"**Tendencia:** {tendencia}")
                 else:
                     calculo = calculos[metric]
                     with st.expander("Mostrar más"):
@@ -88,25 +106,25 @@ def financial_metric_charts(metricas,x_column,metrics,calculos,period):
                         st.write(f"CAGR: {calculo['CAGR']:,.2f}%")
 
 # GRÁFICOS DE VALORACIONES
-def financial_valuation_charts(valoraciones,x_column,metrics):
+def financial_valuation_charts(valoraciones, x_column, metrics):
     columnas = st.columns(2)
-    for i,metric in enumerate(metrics):
+    for i, metric in enumerate(metrics):
         with columnas[i % 2]:
             with st.container(border=True):
-                label = {"P/S":"Price/Sales","P/E":"Price/Earnings","P/B":"Price/Book","P/FCF":"Price/FCF"}.get(metric,metric.replace("_"," ").title())
-                st.markdown(f"<h4 style='text-align: center;'>{label}</h4>",unsafe_allow_html=True)
-                chart_data = valoraciones[[x_column,metric]].set_index(x_column)
-                fig = px.bar(chart_data,x=chart_data.index,y=metric,color_discrete_sequence=[color])
-                fig.update_traces(marker_line_width=1,marker_line_color="#000000")
+                label = {"P/S": "Price/Sales", "P/E": "Price/Earnings", "P/B": "Price/Book", "P/FCF": "Price/FCF"}.get(metric, metric.replace("_", " ").title())
+                st.markdown(f"<h4 style='text-align: center;'>{label}</h4>", unsafe_allow_html=True)
+                chart_data = valoraciones[[x_column, metric]].set_index(x_column)
+                fig = px.bar(chart_data, x=chart_data.index, y=metric, color_discrete_sequence=[color])
+                fig.update_traces(marker_line_width=1, marker_line_color="#000000")
                 fig.update_traces(hovertemplate="%{y:,.2f}<extra></extra>")
-                configurar_grafico(fig,300)
-                fig.update_xaxes(type="category",tickmode="array",tickvals=chart_data.index.tolist())
-                tab_grafico,tab_datos = st.tabs(["📊 Gráfico","📋 Datos"])
+                configurar_grafico(fig, 300)
+                fig.update_xaxes(type="category", tickmode="array", tickvals=chart_data.index.tolist())
+                tab_grafico, tab_datos = st.tabs(["📊 Gráfico", "📋 Datos"])
                 with tab_grafico:
                     mostrar_grafico(fig)
                 with tab_datos:
-                    tabla_data = valoraciones[[x_column,metric]].set_index(x_column)
-                    st.dataframe(tabla_data,use_container_width=True)
+                    tabla_data = valoraciones[[x_column, metric]].set_index(x_column)
+                    st.dataframe(tabla_data, use_container_width=True)
                 dato_actual = valoraciones[metric].iloc[-1]
                 st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
                 with st.expander("Mostrar más"):
@@ -117,82 +135,82 @@ def financial_valuation_charts(valoraciones,x_column,metrics):
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):
     with st.container(border=True):
-        st.markdown("<h3 style='text-align: center;'>Relaciones financieras (datos normalizados)</h3>",unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>Relaciones financieras (datos normalizados)</h3>", unsafe_allow_html=True)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Calidad crecimiento</h4>",unsafe_allow_html=True)
-        chart_data = datos_norm[["Fiscal Year","Revenue","FCF","CapEx"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["Revenue","FCF","CapEx"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A","#329356"])
+        st.markdown("<h4 style='text-align: center;'>Calidad crecimiento</h4>", unsafe_allow_html=True)
+        chart_data = datos_norm[["Fiscal Year", "Revenue", "FCF", "CapEx"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["Revenue", "FCF", "CapEx"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Calidad rentabilidad</h4>",unsafe_allow_html=True)
-        chart_data = datos_norm[["Fiscal Year","Operating Margin","ROIC","CapEx"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["Operating Margin","ROIC","CapEx"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A","#329356"])
+        st.markdown("<h4 style='text-align: center;'>Calidad rentabilidad</h4>", unsafe_allow_html=True)
+        chart_data = datos_norm[["Fiscal Year", "Operating Margin", "ROIC", "CapEx"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["Operating Margin", "ROIC", "CapEx"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Solvencia financiera</h4>",unsafe_allow_html=True)
-        chart_data = datos_norm[["Fiscal Year","FCF","Operating Margin","Debt/EBITDA"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["FCF","Operating Margin","Debt/EBITDA"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A","#329356"])
+        st.markdown("<h4 style='text-align: center;'>Solvencia financiera</h4>", unsafe_allow_html=True)
+        chart_data = datos_norm[["Fiscal Year", "FCF", "Operating Margin", "Debt/EBITDA"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["FCF", "Operating Margin", "Debt/EBITDA"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>Liquidez financiera</h4>",unsafe_allow_html=True)
-        chart_data = datos_norm[["Fiscal Year","FCF","FCF margin","Current ratio"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["FCF","FCF margin","Current ratio"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A","#329356"])
+        st.markdown("<h4 style='text-align: center;'>Liquidez financiera</h4>", unsafe_allow_html=True)
+        chart_data = datos_norm[["Fiscal Year", "FCF", "FCF margin", "Current ratio"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["FCF", "FCF margin", "Current ratio"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-                st.markdown("<h4 style='text-align: center;'>Apalancamiento</h4>",unsafe_allow_html=True)
-                chart_data = datos_norm[["Fiscal Year","Revenue","ROIC","Debt/Equity"]]
-                fig = px.line(chart_data,x="Fiscal Year",y=["Revenue","ROIC","Debt/Equity"],markers=True,
-                color_discrete_sequence=["#2382CA","#533F8A","#329356"])
-                configurar_grafico(fig)
-                mostrar_grafico(fig)
+        st.markdown("<h4 style='text-align: center;'>Apalancamiento</h4>", unsafe_allow_html=True)
+        chart_data = datos_norm[["Fiscal Year", "Revenue", "ROIC", "Debt/Equity"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["Revenue", "ROIC", "Debt/Equity"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
+        configurar_grafico(fig)
+        mostrar_grafico(fig)
 
 # GRÁFICOS BURSÁTIL FINANCIEROS
-def financial_market_relational_charts(datos_norm,valoraciones_norm):
-    datos = datos_norm.merge(valoraciones_norm,on="Fiscal Year")
+def financial_market_relational_charts(datos_norm, valoraciones_norm):
+    datos = datos_norm.merge(valoraciones_norm, on="Fiscal Year")
     with st.container(border=True):
-        st.markdown("<h3 style='text-align: center;'>Relaciones Bursátiles (Datos normalizados)</h3>",unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center;'>Relaciones Bursátiles (Datos normalizados)</h3>", unsafe_allow_html=True)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>P/E vs EBITDA/Deuda</h4>",unsafe_allow_html=True)
-        chart_data = datos[["Fiscal Year","P/E","Debt/EBITDA"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["P/E","Debt/EBITDA"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A"])
+        st.markdown("<h4 style='text-align: center;'>P/E vs EBITDA/Deuda</h4>", unsafe_allow_html=True)
+        chart_data = datos[["Fiscal Year", "P/E", "Debt/EBITDA"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["P/E", "Debt/EBITDA"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>P/S vs Operating Margin</h4>",unsafe_allow_html=True)
-        chart_data = datos[["Fiscal Year","P/S","Operating Margin"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["P/S","Operating Margin"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A"])
+        st.markdown("<h4 style='text-align: center;'>P/S vs Operating Margin</h4>", unsafe_allow_html=True)
+        chart_data = datos[["Fiscal Year", "P/S", "Operating Margin"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["P/S", "Operating Margin"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>P/B vs Debt/Equity</h4>",unsafe_allow_html=True)
-        chart_data = datos[["Fiscal Year","P/B","Debt/Equity"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["P/B","Debt/Equity"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A"])
+        st.markdown("<h4 style='text-align: center;'>P/B vs Debt/Equity</h4>", unsafe_allow_html=True)
+        chart_data = datos[["Fiscal Year", "P/B", "Debt/Equity"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["P/B", "Debt/Equity"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
 
     with st.container(border=True):
-        st.markdown("<h4 style='text-align: center;'>P/FCF vs FCF Margin</h4>",unsafe_allow_html=True)
-        chart_data = datos[["Fiscal Year","P/FCF","FCF margin"]]
-        fig = px.line(chart_data,x="Fiscal Year",y=["P/FCF","FCF margin"],markers=True,
-        color_discrete_sequence=["#2382CA","#533F8A"])
+        st.markdown("<h4 style='text-align: center;'>P/FCF vs FCF Margin</h4>", unsafe_allow_html=True)
+        chart_data = datos[["Fiscal Year", "P/FCF", "FCF margin"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["P/FCF", "FCF margin"], markers=True,
+                      color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
         mostrar_grafico(fig)
