@@ -21,7 +21,6 @@ def configurar_interface():
 # SIDEBAR
 def mostrar_interface(reset_dashboard):
     with st.sidebar:
-        st.logo("multimedia/logo_p.png")
         st.image("multimedia/INVESTOROS_GRIS.png")
         # TICKER
         st.markdown("**TICKER**")

@@ -13,6 +13,37 @@ configurar_interface()
 # ESTADO DE LA APLICACIÓN
 inicializar_estado()
 
+# PANTALLA DE CARGA INICIAL
+pantalla_inicial = None
+if "carga_inicial" not in st.session_state:
+    st.session_state.carga_inicial = True
+if st.session_state.carga_inicial:
+    pantalla_inicial = st.empty()
+    pantalla_inicial.markdown("""
+    <style>
+    .pantalla-inicial {position: fixed;top: 0;left: 0;width: 100vw;height: 100vh;background-color: white;
+    z-index: 999998;display: flex;flex-direction: column;justify-content: center;align-items: center;}
+    .pantalla-inicial h2 {margin: 0;font-size: 28px;}
+    .pantalla-inicial p {margin-top: 12px;font-size: 18px;}
+    .loader-inicial {width: 55px;height: 55px;border: 6px solid #e5e5e5;border-top: 6px solid #2C3490;
+    border-radius: 50%;animation: girar 1s linear infinite;margin-top: 25px;}
+    @keyframes girar {100% { transform: rotate(360deg); }}
+    </style>
+    <div class="pantalla-inicial" id="pantalla-inicial">
+        <h2>Preparando INVESTOROS</h2>
+        <p>Cargando dashboard...</p>
+        <div class="loader-inicial"></div>
+    </div>
+    <script>
+    window.addEventListener("load",function() {
+        const pantalla = document.getElementById("pantalla-inicial");
+        if (pantalla) {
+            pantalla.style.display = "none";
+        }
+    });
+    </script>
+    """,unsafe_allow_html=True)
+
 # SIDEBAR
 ticker,period = mostrar_interface(reset_dashboard)
 
@@ -85,8 +116,6 @@ else:
 if ticker:
     mostrar_header(empresa,mercado_q)
     price_chart(mercado_q)
-    if pantalla_carga:
-        pantalla_carga.empty()
 
 # NAVEGACIÓN
 navigation()
@@ -95,3 +124,10 @@ navigation()
 if ticker:
     mostrar_contenido(financial_section,financial_relational_charts,
     financial_market_relational_charts,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period)
+
+if pantalla_carga:
+    pantalla_carga.empty()
+
+if pantalla_inicial:
+    pantalla_inicial.empty()
+    st.session_state.carga_inicial = False
