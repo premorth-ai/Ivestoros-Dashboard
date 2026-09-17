@@ -13,7 +13,7 @@ def financial_section(data, x_column, title, metrics, metricas_y, period):
     else:
         calculos = {metric: calcular_metricas(metricas_y, metric) for metric in metrics}
         calificaciones = sistema_puntos(metricas_y)
-        financial_metric_charts(data, x_column, metrics, calculos,calificaciones)
+        financial_metric_charts(data, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion)
 
 # CÁLCULO DE MÉTRICAS
 def calcular_metricas(metricas_y, metric):

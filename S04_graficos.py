@@ -49,9 +49,7 @@ def price_chart(data):
             st.dataframe(tabla_data, use_container_width=True)
 
 # GRÁFICOS DE MÉTRICAS
-def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones):
-    # Carga diferida de la función de tendencia
-    from S05_funciones import determinar_tendencia,mostrar_evaluacion
+def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion):
     columnas = st.columns(len(metrics))
     for columna, metric in zip(columnas, metrics):
         with columna:
@@ -120,9 +118,9 @@ def financial_valuation_charts(valoraciones, x_column, metrics):
                 dato_actual = valoraciones[metric].iloc[-1]
                 st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
                 with st.expander("Mostrar más"):
-                    st.write("Actual vs 5YA: ")
-                    st.write("Actual vs industria: ")
-                    st.write("Actual vs industria 5YA: ")
+                    st.write("**Actual vs 5YA:** ")
+                    st.write("**Actual vs industria:** ")
+                    st.write("**Actual vs industria 5YA:** ")
 
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):
