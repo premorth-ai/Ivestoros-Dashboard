@@ -18,6 +18,7 @@ ticker,period = mostrar_interface(reset_dashboard)
 
 # VALIDACIÓN DEL TICKER
 ticker = validar_ticker(ticker)
+pantalla_carga = None
 if ticker is None:
     if st.session_state.ticker == "":
         st.warning("Ingrese un ticker para comenzar.")
@@ -25,8 +26,29 @@ if ticker is None:
         st.error("Ticker no encontrado.")
 else:
     if st.session_state.loaded_ticker != ticker or st.session_state.valoraciones_norm is None:
+        pantalla_carga = st.empty()
+        pantalla_carga.markdown(f"""
+        <style>
+        .pantalla-carga {{position: fixed;top: 0;left: 0;width: 100vw;height: 100vh;background-color: white;
+        z-index: 999999;display: flex;flex-direction: column;justify-content: center;align-items: center;}}
+        .pantalla-carga img {{width: 180px;margin-bottom: 25px;}}
+        .pantalla-carga h2 {{margin: 0;font-size: 28px;}}
+        .pantalla-carga p {{margin-top: 12px;font-size: 18px;}}
+        .loader {{width: 55px;height: 55px;border: 6px solid #e5e5e5;border-top: 6px solid #2C3490;
+        border-radius: 50%;animation: girar 1s linear infinite;margin-top: 25px;}}
+        @keyframes girar {{100% {{ transform: rotate(360deg); }}}}
+        </style>
+        <div class="pantalla-carga">
+            <h2>Analizando {ticker.upper()}</h2>
+            <p>Obteniendo información financiera...</p>
+            <div class="loader"></div>
+        </div>
+        """,unsafe_allow_html=True)
+        
         resultado = consultar_web(ticker)
+        
         if resultado is None:
+            pantalla_carga.empty()
             st.error("Ticker no encontrado")
             ticker = None
         else:
@@ -63,6 +85,8 @@ else:
 if ticker:
     mostrar_header(empresa,mercado_q)
     price_chart(mercado_q)
+    if pantalla_carga:
+        pantalla_carga.empty()
 
 # NAVEGACIÓN
 navigation()
