@@ -21,6 +21,13 @@ def configurar_interface():
 # SIDEBAR
 def mostrar_interface(reset_dashboard):
     with st.sidebar:
+        st.markdown("""
+        <style>
+        button[title="View fullscreen"] {
+            display: none !important;
+        }
+        </style>
+        """,unsafe_allow_html=True)
         st.image("multimedia/INVESTOROS_GRIS.png")
         # TICKER
         st.markdown("**TICKER**")
