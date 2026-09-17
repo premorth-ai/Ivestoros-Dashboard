@@ -4,6 +4,7 @@ import streamlit as st
 def financial_section(data, x_column, title, metrics, metricas_y, period):
     # Carga diferida para evitar el bucle circular con S04_graficos
     from S04_graficos import financial_metric_charts, financial_valuation_charts
+    from S06_sistema_puntos import sistema_puntos
     
     with st.container(border=True):
         st.markdown(f"<h3 style='text-align: center;'>{title}</h3>", unsafe_allow_html=True)
@@ -11,7 +12,8 @@ def financial_section(data, x_column, title, metrics, metricas_y, period):
         financial_valuation_charts(data, x_column, metrics)
     else:
         calculos = {metric: calcular_metricas(metricas_y, metric) for metric in metrics}
-        financial_metric_charts(data, x_column, metrics, calculos, period)
+        calificaciones = sistema_puntos(metricas_y)
+        financial_metric_charts(data, x_column, metrics, calculos,calificaciones)
 
 # CÁLCULO DE MÉTRICAS
 def calcular_metricas(metricas_y, metric):
@@ -70,7 +72,41 @@ def determinar_tendencia(metricas_q, metric):
 
     return "Lateral / No Definida"
 
+# MOSTRAR EVALUACIÓN
+def mostrar_evaluacion(metric, calculo, tendencia):
+    metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin"}
+    metricas_inversas = {"Debt/Equity","Debt/EBITDA"}
 
+    def formato(valor):
+        if metric in metricas_directas:
+            if valor > 0:
+                return f"<b style='color: green;'>↑ {valor:,.2f}%</b>"
+            elif valor < 0:
+                return f"<b style='color: red;'>↓ {abs(valor):,.2f}%</b>"
+            return f"<b>→ 0.00%</b>"
+
+        if metric in metricas_inversas:
+            if valor < 0:
+                return f"<b style='color: green;'>↓ {abs(valor):,.2f}%</b>"
+            elif valor > 0:
+                return f"<b style='color: red;'>↑ {valor:,.2f}%</b>"
+            return f"<b>→ 0.00%</b>"
+
+        if valor > 0:
+            return f"<b>↑ {valor:,.2f}%</b>"
+        elif valor < 0:
+            return f"<b>↓ {abs(valor):,.2f}%</b>"
+        return f"<b>→ 0.00%</b>"
+
+    mensaje = f"""
+    **Actual vs anterior:** {formato(calculo["Actual vs anterior"])}  
+    **Actual vs más antiguo:** {formato(calculo["Actual vs más antiguo"])}  
+    **Actual vs promedio:** {formato(calculo["Actual vs 5YA"])}  
+    **CAGR:** {formato(calculo["CAGR"])}  
+    **Tendencia:** {tendencia}
+    """
+
+    st.markdown(mensaje, unsafe_allow_html=True)
 
 # SELECCIÓN DE DATOS
 def get_company_data(metricas_y, metricas_q, valoraciones_y, valoraciones_q, period):

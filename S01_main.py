@@ -4,6 +4,7 @@ from S03_interface import (mostrar_interface,configurar_interface,mostrar_header
 from S04_graficos import price_chart,financial_relational_charts,financial_market_relational_charts
 from S05_funciones import (financial_section,get_company_data,inicializar_estado,
                            reset_dashboard,validar_ticker,normalizar_datos)
+from S06_sistema_puntos import sistema_puntos
 
 
 # CONFIGURACIÓN
@@ -56,6 +57,7 @@ else:
         empresa = nombre
         # SELECCIÓN DE DATOS
         data,valoraciones,x_column = get_company_data(metricas_y,metricas_q,valoraciones_y,valoraciones_q,period)
+
 
 # HEADER
 if ticker:

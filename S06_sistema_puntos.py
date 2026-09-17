@@ -1,59 +1,62 @@
+# Sistema de puntos
+def sistema_puntos(metricas_y):
+    calificaciones = {}
 
-    # REVENUE
+    rangos = {
+    "Revenue": [
+        (0.15,10),(0.11,9),(0.08,8),(0.05,7),(0.02,6),
+        (0,5),(-0.05,4),(-0.10,3),(-0.20,2)
+    ],
+    "FCF": [
+        (0.25,10),(0.18,9),(0.12,8),(0.07,7),(0.03,6),
+        (-0.03,5),(-0.10,4),(-0.20,3),(-0.35,2)
+    ],
+    "Operating Margin": [
+        (0.30,10),(0.20,9),(0.15,8),(0.10,7),(0.07,6),
+        (0.05,5),(0.04,4),(0.03,3),(0,2)
+    ],
+    "ROIC": [
+        (0.30,10),(0.20,9),(0.15,8),(0.10,7),(0.07,6),
+        (0.05,5),(0.04,4),(0.03,3),(0,2)
+    ],
+    "FCF margin": [
+        (0.225,10),(0.15,9),(0.10,8),(0.07,7),(0.05,6),
+        (0.04,5),(0.03,4),(0.02,3),(0,2)
+    ],
+    "Debt/Equity": [
+        (0.2,10),(0.4,9),(0.6,8),(0.8,7),(1.0,6),
+        (1.4,5),(1.8,4),(2.2,3),(3.0,2)
+    ],
+    "Debt/EBITDA": [
+        (0.5,10),(1.0,9),(1.5,8),(2.0,7),(2.5,6),
+        (3.0,5),(3.5,4),(4.0,3),(5.0,2)
+    ],
+    "Current ratio": [
+        (2.5,10),(2.2,9),(1.9,8),(1.6,7),(1.3,6),
+        (1.1,5),(0.9,4),(0.7,3),(0.5,2)
+    ]
+    }
 
-rangos = [
-                (0.15,9,True),(0.11,8,False),(0.08,7,False),
-                (0.05,6,False),(0.02,5,False),(0,4,False),
-                (-0.05,3,False),(-0.10,2,False),(-0.20,1,False)
-            ]
+    menor_es_mejor = {"Debt/Equity","Debt/EBITDA"}
 
-    # FCF
-rangos = [
-                (0.25,9,True),(0.18,8,False),(0.12,7,False),
-                (0.07,6,False),(0.03,5,False),(-0.03,4,False),
-                (-0.10,3,False),(-0.20,2,False),(-0.35,1,False)
-            ]
+    for metric, rangos_metric in rangos.items():
+        datos = metricas_y[metric].dropna()
 
-    # OPERATING MARGIN
-rangos = [
-            (0.30,9,False),(0.20,8,False),(0.15,7,False),
-            (0.10,6,False),(0.07,5,False),(0.05,4,False),
-            (0.04,3,False),(0.03,2,False),(0,1,True)
-        ]
+        if datos.empty:
+            calificaciones[metric] = None
+            continue
 
-# ROIC
-rangos = [
-            (0.30,9,False),(0.20,8,False),(0.15,7,False),
-            (0.10,6,False),(0.07,5,False),(0.05,4,False),
-            (0.04,3,False),(0.03,2,False),(0,1,True)
-        ]
+        valor = datos.iloc[-1]
 
-    # FCF MARGIN
-rangos = [
-            (0.225,9,False),(0.15,8,False),(0.10,7,False),
-            (0.07,6,False),(0.05,5,False),(0.04,4,False),
-            (0.03,3,False),(0.02,2,False),(0,1,True)
-        ]
+        for umbral, calificacion in rangos_metric:
+            if metric in menor_es_mejor:
+                if valor <= umbral:
+                    calificaciones[metric] = calificacion
+                    break
+            elif valor >= umbral:
+                calificaciones[metric] = calificacion
+                break
+        else:
+            calificaciones[metric] = 0
 
-    # DEBT TO EQUITY
-rangos = [
-            (0.2,9,True),(0.4,8,False),(0.6,7,False),
-            (0.8,6,False),(1.0,5,False),(1.4,4,False),
-            (1.8,3,False),(2.2,2,False),(3.0,1,False)
-        ]
-
-# DEBT TO EBITDA
-rangos = [
-            (0.5,9,True),(1.0,8,False),(1.5,7,False),
-            (2.0,6,False),(2.5,5,False),(3.0,4,False),
-            (3.5,3,False),(4.0,2,False),(5.0,1,False)
-        ]
-
-# CURRENT RATIO
-rangos = [
-            (2.5,9,True),(2.2,8,False),(1.9,7,False),
-            (1.6,6,False),(1.3,5,False),(1.1,4,False),
-            (0.9,3,False),(0.7,2,False),(0.5,1,False)
-        ]
-
-
+    return calificaciones

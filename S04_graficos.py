@@ -49,10 +49,9 @@ def price_chart(data):
             st.dataframe(tabla_data, use_container_width=True)
 
 # GRÁFICOS DE MÉTRICAS
-def financial_metric_charts(metricas, x_column, metrics, calculos, period):
+def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones):
     # Carga diferida de la función de tendencia
-    from S05_funciones import determinar_tendencia
-
+    from S05_funciones import determinar_tendencia,mostrar_evaluacion
     columnas = st.columns(len(metrics))
     for columna, metric in zip(columnas, metrics):
         with columna:
@@ -92,18 +91,11 @@ def financial_metric_charts(metricas, x_column, metrics, calculos, period):
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}%")
                 else:
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
-                
-                # Evaluación de periodo
-                if period == "Fiscal Quarter":
-                    tendencia = determinar_tendencia(metricas, metric)
-                    st.markdown(f"**Tendencia:** {tendencia}")
-                else:
-                    calculo = calculos[metric]
-                    with st.expander("Mostrar más"):
-                        st.write(f"Actual vs anterior: {calculo['Actual vs anterior']:,.2f}%")
-                        st.write(f"Actual vs más antiguo: {calculo['Actual vs más antiguo']:,.2f}%")
-                        st.write(f"Actual vs 5YA: {calculo['Actual vs 5YA']:,.2f}%")
-                        st.write(f"CAGR: {calculo['CAGR']:,.2f}%")
+                calificacion = "No aplica" if metric == "CapEx" else calificaciones[metric]
+                st.markdown(f"**Calificación:** {calificacion}" if metric == "CapEx" else f"**Calificación:** {calificacion}/10")
+                with st.expander("Mostrar más"):
+                    tendencia = determinar_tendencia(st.session_state.metricas_q, metric)
+                    mostrar_evaluacion(metric, calculos[metric], tendencia)
 
 # GRÁFICOS DE VALORACIONES
 def financial_valuation_charts(valoraciones, x_column, metrics):
