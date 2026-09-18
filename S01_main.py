@@ -4,7 +4,6 @@ from S03_interface import (mostrar_interface,configurar_interface,mostrar_header
 from S04_graficos import price_chart,financial_relational_charts,financial_market_relational_charts
 from S05_funciones import (financial_section,get_company_data,inicializar_estado,
                            reset_dashboard,validar_ticker,normalizar_datos,determinar_tendencia,mostrar_evaluacion)
-from S06_sistema_puntos import sistema_puntos
 
 
 # CONFIGURACIÓN
