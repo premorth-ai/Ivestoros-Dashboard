@@ -193,7 +193,10 @@ def sistema_puntos(metricas_y):
         if datos.empty:
             calificaciones[metric] = None
             continue
-        valor = datos.iloc[-1]
+        if metric in {"Revenue","FCF"}:
+            valor = ((datos.iloc[-1] / datos.iloc[0]) ** (1 / (len(datos) - 1)) - 1)
+        else:
+            valor = datos.iloc[-1]
         for umbral, calificacion in rangos_metric:
             if metric in menor_es_mejor:
                 if valor <= umbral:

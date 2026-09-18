@@ -67,28 +67,28 @@ def mostrar_contenido(financial_section,financial_relational_charts,financial_ma
             st.markdown("<h3 style='text-align: center;'>Calificación financiera</h3>", unsafe_allow_html=True)
 
             with st.container(border=True):
-                st.markdown("<h4 style='text-align: center;'>Crecimiento</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 >Crecimiento</h4>", unsafe_allow_html=True)
                 st.markdown(f"**Revenue:** {puntos['Revenue']}/10")
                 st.markdown(f"**FCF:** {puntos['FCF']}/10")
                 st.markdown("**CapEx:** No aplica")
                 st.markdown(f"**Promedio:** {calificacion['Crecimiento']:.2f}/10")
 
             with st.container(border=True):
-                st.markdown("<h4 style='text-align: center;'>Rentabilidad</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 >Rentabilidad</h4>", unsafe_allow_html=True)
                 st.markdown(f"**Operating Margin:** {puntos['Operating Margin']}/10")
                 st.markdown(f"**ROIC:** {puntos['ROIC']}/10")
                 st.markdown(f"**FCF margin:** {puntos['FCF margin']}/10")
                 st.markdown(f"**Promedio:** {calificacion['Rentabilidad']:.2f}/10")
 
             with st.container(border=True):
-                st.markdown("<h4 style='text-align: center;'>Solidez financiera</h4>", unsafe_allow_html=True)
+                st.markdown("<h4 >Solidez financiera</h4>", unsafe_allow_html=True)
                 st.markdown(f"**Debt/Equity:** {puntos['Debt/Equity']}/10")
                 st.markdown(f"**Debt/EBITDA:** {puntos['Debt/EBITDA']}/10")
                 st.markdown(f"**Current ratio:** {puntos['Current ratio']}/10")
                 st.markdown(f"**Promedio:** {calificacion['Solidez financiera']:.2f}/10")
 
             with st.container(border=True):
-                st.markdown(f"<h4 style='text-align: center;'>Calificación total: {calificacion['Total']:.2f}/10</h4>", unsafe_allow_html=True)
+                st.markdown(f"<h4 >Calificación total: {calificacion['Total']:.2f}/10</h4>", unsafe_allow_html=True)
                 st.markdown("**Métricas a mejorar:**")
                 for metrica in calificacion["Métricas a mejorar"]:
                     st.markdown(f"- {metrica}")
@@ -114,9 +114,9 @@ def navigation():
                 st.session_state.section = "Bursátil financiero"
     with col3:
         with st.popover("📋 ANÁLISIS",use_container_width=True,key="analisis"):
-            if st.button("ANALISIS FINANCIERO",use_container_width=True):
+            if st.button("CALIFICACIÓN FINANCIERA",use_container_width=True):
                 st.session_state.section = "Calificacion financiera"
-            if st.button("ANALISIS VALORACIONES",use_container_width=True):
+            if st.button("CALIFICACION BURSÁTIL",use_container_width=True):
                 st.session_state.section = "Calificacion bursatil"
-            if st.button("RANGO DE PRECIO",use_container_width=True):
+            if st.button("RANGOS DE PRECIO",use_container_width=True):
                 st.session_state.section = "Analisis integral"
