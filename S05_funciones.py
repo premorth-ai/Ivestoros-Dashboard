@@ -24,8 +24,7 @@ def calcular_metricas(metricas_y, metric):
         "Actual vs anterior": (actual / anterior - 1) * 100,
         "Actual vs más antiguo": (actual / antiguo - 1) * 100,
         "Actual vs 5YA": (actual / promedio_5ya - 1) * 100,
-        "CAGR": ((actual / antiguo) ** (1 / (len(metricas_y) - 1)) - 1) * 100
-    }
+        "CAGR": ((actual / antiguo) ** (1 / (len(metricas_y) - 1)) - 1) * 100}
     return resultados
 
 # COMPARACIÓN CON INDUSTRIA
@@ -35,16 +34,12 @@ def industrias(valoraciones_y, metric, industrias_v):
     industria = industrias_v.loc[industrias_v.iloc[:, 0] == "Industry", metric].iloc[0]
     sector = industrias_v.loc[industrias_v.iloc[:, 0] == "Sector", metric].iloc[0]
     sp500 = industrias_v.loc[industrias_v.iloc[:, 0] == "S&P 500", metric].iloc[0]
-
     comparaciones = {
         "Empresa vs 5YA": (actual / promedio_5ya - 1) * 100,
         "Empresa vs Industry": (actual / industria - 1) * 100,
         "Empresa vs Sector": (actual / sector - 1) * 100,
-        "Empresa vs S&P 500": (actual / sp500 - 1) * 100
-    }
-
+        "Empresa vs S&P 500": (actual / sp500 - 1) * 100}
     mensaje = ""
-
     for nombre, valor in comparaciones.items():
         if valor < 0:
             resultado = f"<b style='color: green;'>↓ {abs(valor):,.2f}%</b>"
@@ -52,9 +47,7 @@ def industrias(valoraciones_y, metric, industrias_v):
             resultado = f"<b style='color: red;'>↑ {valor:,.2f}%</b>"
         else:
             resultado = "<b>→ 0.00%</b>"
-
         mensaje += f"**{nombre}:** {resultado}<br>"
-
     st.markdown(mensaje, unsafe_allow_html=True)
 
 # Tendencia
@@ -62,16 +55,13 @@ def determinar_tendencia(metricas_q, metric):
     datos = metricas_q[metric].dropna()
     antiguo = datos.iloc[0]
     actual = datos.iloc[-1]
-
     # Descarte directo si son iguales o si el dato inicial es 0
     if actual == antiguo or antiguo == 0:
         return "Lateral / No Definida"
-
     cambio_global = (actual - antiguo) / abs(antiguo)
     variaciones = datos.pct_change().dropna()
     total_variaciones = len(variaciones)
     umbral_16 = max(1, int(total_variaciones * 0.68)) # ~13 de 19
-
     # TENDENCIA ALCISTA
     if cambio_global >= 0.30:
         cumple_pasos = (variaciones >= 0.02).sum() >= umbral_16
@@ -79,12 +69,9 @@ def determinar_tendencia(metricas_q, metric):
         tiene_caida_grave = any(variaciones.iloc[i] < -0.2 for i in pos_fallas)
         tres_consecutivas = len(pos_fallas) > 2 and any(
         pos_fallas[i + 2] - pos_fallas[i] == 2 and pos_fallas[i + 1] - pos_fallas[i] == 1
-        for i in range(len(pos_fallas) - 2)
-                                        )
-        
+        for i in range(len(pos_fallas) - 2))
         if cumple_pasos and (not tiene_caida_grave) and (not tres_consecutivas):
             return "Alcista"
-
     # TENDENCIA BAJISTA
     elif cambio_global < -0.30:
         cumple_pasos = (variaciones <= -0.02).sum() >= umbral_16
@@ -92,19 +79,15 @@ def determinar_tendencia(metricas_q, metric):
         tiene_rebote_grave = any(variaciones.iloc[i] > 0.2 for i in pos_fallas)
         tres_consecutivas = len(pos_fallas) > 2 and any(
         pos_fallas[i + 2] - pos_fallas[i] == 2 and pos_fallas[i + 1] - pos_fallas[i] == 1
-        for i in range(len(pos_fallas) - 2)
-                                        )
-        
+        for i in range(len(pos_fallas) - 2))
         if cumple_pasos and (not tiene_rebote_grave) and (not tres_consecutivas):
             return "Bajista"
-
     return "Lateral / No Definida"
 
 # MOSTRAR EVALUACIÓN
 def mostrar_evaluacion(metric, calculo, tendencia):
     metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin"}
     metricas_inversas = {"Debt/Equity","Debt/EBITDA"}
-
     def formato(valor):
         if metric in metricas_directas:
             if valor > 0:
@@ -112,20 +95,17 @@ def mostrar_evaluacion(metric, calculo, tendencia):
             elif valor < 0:
                 return f"<b style='color: red;'>↓ {abs(valor):,.2f}%</b>"
             return f"<b>→ 0.00%</b>"
-
         if metric in metricas_inversas:
             if valor < 0:
                 return f"<b style='color: green;'>↓ {abs(valor):,.2f}%</b>"
             elif valor > 0:
                 return f"<b style='color: red;'>↑ {valor:,.2f}%</b>"
             return f"<b>→ 0.00%</b>"
-
         if valor > 0:
             return f"<b>↑ {valor:,.2f}%</b>"
         elif valor < 0:
             return f"<b>↓ {abs(valor):,.2f}%</b>"
         return f"<b>→ 0.00%</b>"
-
     mensaje = f"""
     **Actual vs anterior:** {formato(calculo["Actual vs anterior"])}  
     **Actual vs más antiguo:** {formato(calculo["Actual vs más antiguo"])}  
@@ -133,7 +113,6 @@ def mostrar_evaluacion(metric, calculo, tendencia):
     **CAGR:** {formato(calculo["CAGR"])}  
     **Tendencia:** {tendencia}
     """
-
     st.markdown(mensaje, unsafe_allow_html=True)
 
 # SELECCIÓN DE DATOS
@@ -179,24 +158,20 @@ def validar_ticker(ticker):
 def normalizar_datos(datos_y, valoraciones_y):
     datos_norm = datos_y.copy()
     valoraciones_norm = valoraciones_y.copy()
-    
     # Inverso seguro para Debt/EBITDA
     datos_norm["Debt/EBITDA Inverso"] = datos_norm["Debt/EBITDA"].apply(lambda x: 1 / x if x != 0 else 0)
-    
     for columna in datos_norm.columns[1:]:
         val_inicial = datos_norm[columna].iloc[0]
         if val_inicial != 0:
             datos_norm[columna] = (datos_norm[columna] / val_inicial) * 100
         else:
             datos_norm[columna] = 0
-
     for columna in valoraciones_norm.columns[1:]:
         val_inicial = valoraciones_norm[columna].iloc[0]
         if val_inicial != 0:
             valoraciones_norm[columna] = (valoraciones_norm[columna] / val_inicial) * 100
         else:
             valoraciones_norm[columna] = 0
-
     return datos_norm, valoraciones_norm
 
 # SISTEMA DE PUNTOS
