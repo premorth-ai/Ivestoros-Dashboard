@@ -174,7 +174,6 @@ def consultar_web2 (ticker):
     datos3_buscar= ["Industry", "Sector"]
 
     # OBTENER LOS DATOS DE LAS TABLAS
-    # OBTENER LOS DATOS DE LAS TABLAS
     industrias_v = []
     industria = ""
     sector = ""
@@ -191,9 +190,6 @@ def consultar_web2 (ticker):
                     industria = str(fila).split("•",1)[-1].strip()
                 elif str(fila).startswith("Sector"):
                     sector = str(fila).split("•",1)[-1].strip()
-
-    print("Industria:", industria)
-    print("Sector:", sector)
 
     # CONVERTIR A DATAFRAME
     industrias_v = pd.concat(industrias_v, ignore_index=True)
@@ -222,6 +218,7 @@ def consultar_web2 (ticker):
             if str(columna).startswith(nombre):
                 industrias_v = industrias_v.rename(columns={columna: nuevo_nombre})
 
-    return industrias_v
+    industrias_v[industrias_v.columns[1:]] = industrias_v[industrias_v.columns[1:]].astype(float)
 
+    return industrias_v
 
