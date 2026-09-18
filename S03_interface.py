@@ -81,9 +81,9 @@ def navigation():
                 st.session_state.section = "Bursátil financiero"
     with col3:
         with st.popover("📋 ANÁLISIS",use_container_width=True,key="analisis"):
-            if st.button("CALIFICACIÓN CONTABLE",use_container_width=True):
-                st.session_state.section = "Analisis contable"
-            if st.button("CALIFICACIÓN DE VALORACIONES",use_container_width=True):
-                st.session_state.section = "Analisis valoraciones"
+            if st.button("ANALISIS FINANCIERO",use_container_width=True):
+                st.session_state.section = "Calificacion financiera"
+            if st.button("ANALISIS VALORACIONES",use_container_width=True):
+                st.session_state.section = "Calificacion bursatil"
             if st.button("RANGO DE PRECIO",use_container_width=True):
                 st.session_state.section = "Analisis integral"

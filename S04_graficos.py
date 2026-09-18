@@ -120,6 +120,7 @@ def financial_valuation_charts(valoraciones, x_column, metrics):
                 st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
                 with st.expander("Mostrar más"):
                     industrias(st.session_state.valoraciones_y,metric,st.session_state.industrias_v)
+
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):
     with st.container(border=True):
@@ -131,6 +132,8 @@ def financial_relational_charts(datos_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["Revenue", "FCF", "CapEx"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -139,6 +142,8 @@ def financial_relational_charts(datos_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["Operating Margin", "ROIC", "CapEx"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -147,6 +152,8 @@ def financial_relational_charts(datos_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["FCF", "Operating Margin", "Debt/EBITDA"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -155,6 +162,8 @@ def financial_relational_charts(datos_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["FCF", "FCF margin", "Current ratio"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -163,6 +172,8 @@ def financial_relational_charts(datos_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["Revenue", "ROIC", "Debt/Equity"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
 # GRÁFICOS BURSÁTIL FINANCIEROS
@@ -177,6 +188,8 @@ def financial_market_relational_charts(datos_norm, valoraciones_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["P/E", "Debt/EBITDA"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -185,6 +198,8 @@ def financial_market_relational_charts(datos_norm, valoraciones_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["P/S", "Operating Margin"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -193,6 +208,8 @@ def financial_market_relational_charts(datos_norm, valoraciones_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["P/B", "Debt/Equity"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
 
     with st.container(border=True):
@@ -201,4 +218,6 @@ def financial_market_relational_charts(datos_norm, valoraciones_norm):
         fig = px.line(chart_data, x="Fiscal Year", y=["P/FCF", "FCF margin"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
+        fig.update_yaxes(type="log")
+        fig.update_traces(hovertemplate="%{y:.2f}%<extra></extra>")
         mostrar_grafico(fig)
