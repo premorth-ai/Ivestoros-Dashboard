@@ -1,5 +1,4 @@
 import streamlit as st
-from S02_datos import industrias
 
 # CONFIGURACIÓN
 def configurar_interface():
@@ -33,10 +32,6 @@ def mostrar_interface(reset_dashboard):
         st.markdown("**TICKER**")
         ticker = st.text_input("Ticker",value="",placeholder="Enter ticker",
             label_visibility="collapsed",key="ticker",on_change=reset_dashboard)
-        # INDUSTRIA
-        st.markdown("**INDUSTRIA**")
-        industria = st.selectbox("Industry",industrias["industria"],index=None,
-            placeholder="Select industry",label_visibility="collapsed",key="industria")
         # PERIODO
         st.markdown("**PERIODO**")
         period = st.selectbox("Period",["Fiscal Year","Fiscal Quarter"],

@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-from pathlib import Path
 from io import StringIO
 from concurrent.futures import ThreadPoolExecutor
 
@@ -9,11 +8,6 @@ headers = {
                   "AppleWebKit/537.36 (KHTML, like Gecko) "
                   "Chrome/140.0.0.0 Safari/537.36"
 }
-
-# Encuentra la ruta exacta del archivo en la misma carpeta
-ruta = Path(__file__).parent / "industrias.csv"
-# Carga los datos en la variable 'df'
-industrias = pd.read_csv(ruta, sep=";", decimal=",")
 
 # CONSULTA A STOCK ANALISYS
 def consultar_web(ticker):
@@ -166,4 +160,68 @@ def consultar_web(ticker):
     metricas_q, valoraciones_q, mercado_q = procesar_datos(respuestas_q, "Fiscal Quarter")
     print(metricas_q)
     return nombre, metricas_y, metricas_q, valoraciones_y, valoraciones_q, mercado_y, mercado_q
+
+def consultar_web2 (ticker):
+    url2 = f"https://csimarket.com/stocks/{ticker}-Valuation-Comparisons.html"
+    respuesta = requests.get(url2, headers=headers)
+    
+    if respuesta.status_code != 200:
+        return None
+
+    # DATOS QUE QUEREMOS ENCONTRAR
+    datos2_buscar = ["Price to earnings PE Ratio","Price to Sales",
+        "Price to Free Cash Flow","Price to Book"]
+    datos3_buscar= ["Industry", "Sector"]
+
+    # OBTENER LOS DATOS DE LAS TABLAS
+    # OBTENER LOS DATOS DE LAS TABLAS
+    industrias_v = []
+    industria = ""
+    sector = ""
+    for tabla in pd.read_html(StringIO(respuesta.text)):
+        filas = tabla[tabla.iloc[:, 0].astype(str).str.startswith(tuple(datos2_buscar))]
+        if not filas.empty:
+            filas = pd.concat([tabla.iloc[[0]],filas])
+            industrias_v.append(filas)
+
+        filas = tabla[tabla.iloc[:, 0].astype(str).str.startswith(tuple(datos3_buscar))]
+        if not filas.empty:
+            for fila in filas.iloc[:, 0]:
+                if str(fila).startswith("Industry"):
+                    industria = str(fila).split("•",1)[-1].strip()
+                elif str(fila).startswith("Sector"):
+                    sector = str(fila).split("•",1)[-1].strip()
+
+    print("Industria:", industria)
+    print("Sector:", sector)
+
+    # CONVERTIR A DATAFRAME
+    industrias_v = pd.concat(industrias_v, ignore_index=True)
+
+    # ELIMINAR LOS ENCABEZADOS ORIGINALES
+    industrias_v.columns = range(industrias_v.shape[1])
+
+    # TRANSPONER DATAFRAME
+    industrias_v = industrias_v.T
+    industrias_v.columns = industrias_v.iloc[0]
+    industrias_v = industrias_v.iloc[1:]
+    industrias_v = industrias_v.reset_index()
+    industrias_v = industrias_v.drop(columns=["index"])
+    industrias_v = industrias_v[industrias_v.iloc[:, 0] != "Company"].reset_index(drop=True)
+
+    # RENOMBRAR COLUMNAS
+    renombrar = {
+        "Price to earnings PE Ratio": "P/E",
+        "Price to Sales": "P/S",
+        "Price to Free Cash Flow": "P/FCF",
+        "Price to Book": "P/B"
+    }
+
+    for columna in industrias_v.columns:
+        for nombre, nuevo_nombre in renombrar.items():
+            if str(columna).startswith(nombre):
+                industrias_v = industrias_v.rename(columns={columna: nuevo_nombre})
+
+    return industrias_v
+
 
