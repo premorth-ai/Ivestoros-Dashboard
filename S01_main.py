@@ -1,5 +1,5 @@
 import streamlit as st
-from S02_datos import consultar_web,consultar_web2
+from S02_datos import consultar_web
 from S03_interface import (mostrar_interface,configurar_interface,mostrar_header,mostrar_contenido,navigation)
 from S04_graficos import price_chart,financial_relational_charts,financial_market_relational_charts
 from S05_funciones import (financial_section,get_company_data,inicializar_estado,
@@ -83,8 +83,7 @@ else:
             st.error("Ticker no encontrado")
             ticker = None
         else:
-            industrias_v = consultar_web2(ticker)
-            nombre,metricas_y,metricas_q,valoraciones_y,valoraciones_q,mercado_y,mercado_q = resultado
+            nombre,metricas_y,metricas_q,valoraciones_y,valoraciones_q,mercado_y,mercado_q,industrias_v = resultado
             datos_norm,valoraciones_norm = normalizar_datos(metricas_y,valoraciones_y)
             st.session_state.loaded_ticker = ticker
             st.session_state.nombre = nombre
@@ -118,6 +117,8 @@ else:
 if ticker:
     mostrar_header(empresa,mercado_q)
     price_chart(mercado_q)
+    if pantalla_carga:
+        pantalla_carga.empty()
 
 # NAVEGACIÓN
 navigation()
@@ -126,9 +127,6 @@ navigation()
 if ticker:
     mostrar_contenido(financial_section,financial_relational_charts,
     financial_market_relational_charts,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period)
-
-if pantalla_carga:
-    pantalla_carga.empty()
 
 if pantalla_inicial:
     pantalla_inicial.empty()

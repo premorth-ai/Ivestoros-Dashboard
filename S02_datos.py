@@ -13,9 +13,21 @@ headers = {
 def consultar_web(ticker):
     # VALIDAR TICKER
     url = f"https://stockanalysis.com/stocks/{ticker}/"
-    respuesta = requests.get(url, headers=headers)
+    url2 = f"https://csimarket.com/stocks/{ticker}-Valuation-Comparisons.html"
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        respuestas_validacion = list(executor.map(
+            lambda url: requests.get(url, headers=headers),
+            [url,url2]
+        ))
+
+    respuesta = respuestas_validacion[0]
+    respuesta2 = respuestas_validacion[1]
     
     if respuesta.status_code != 200:
+        return None
+
+    if respuesta2.status_code != 200:
         return None
 
     # OBTENER NOMBRE
@@ -159,16 +171,8 @@ def consultar_web(ticker):
     metricas_y, valoraciones_y, mercado_y = procesar_datos(respuestas_y, "Fiscal Year")
     metricas_q, valoraciones_q, mercado_q = procesar_datos(respuestas_q, "Fiscal Quarter")
     print(metricas_q)
-    return nombre, metricas_y, metricas_q, valoraciones_y, valoraciones_q, mercado_y, mercado_q
 
-def consultar_web2 (ticker):
-    url2 = f"https://csimarket.com/stocks/{ticker}-Valuation-Comparisons.html"
-    respuesta = requests.get(url2, headers=headers)
-    
-    if respuesta.status_code != 200:
-        return None
-
-    # DATOS QUE QUEREMOS ENCONTRAR
+    # OBTENER DATOS DE INDUSTRIA
     datos2_buscar = ["Price to earnings PE Ratio","Price to Sales",
         "Price to Free Cash Flow","Price to Book"]
     datos3_buscar= ["Industry", "Sector"]
@@ -177,7 +181,7 @@ def consultar_web2 (ticker):
     industrias_v = []
     industria = ""
     sector = ""
-    for tabla in pd.read_html(StringIO(respuesta.text)):
+    for tabla in pd.read_html(StringIO(respuesta2.text)):
         filas = tabla[tabla.iloc[:, 0].astype(str).str.startswith(tuple(datos2_buscar))]
         if not filas.empty:
             filas = pd.concat([tabla.iloc[[0]],filas])
@@ -220,5 +224,4 @@ def consultar_web2 (ticker):
 
     industrias_v[industrias_v.columns[1:]] = industrias_v[industrias_v.columns[1:]].astype(float)
 
-    return industrias_v
-
+    return nombre, metricas_y, metricas_q, valoraciones_y, valoraciones_q, mercado_y, mercado_q, industrias_v
