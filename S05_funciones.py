@@ -29,6 +29,35 @@ def calcular_metricas(metricas_y, metric):
     }
     return resultados
 
+# COMPARACIÓN CON INDUSTRIA
+def industrias(valoraciones_y, metric, industrias_v):
+    actual = valoraciones_y[metric].iloc[-1]
+    promedio_5ya = valoraciones_y[metric].iloc[:-1].mean()
+    industria = industrias_v.loc[industrias_v.iloc[:, 0] == "Industry", metric].iloc[0]
+    sector = industrias_v.loc[industrias_v.iloc[:, 0] == "Sector", metric].iloc[0]
+    sp500 = industrias_v.loc[industrias_v.iloc[:, 0] == "S&P 500", metric].iloc[0]
+
+    comparaciones = {
+        "Empresa vs 5YA": (actual / promedio_5ya - 1) * 100,
+        "Empresa vs Industry": (actual / industria - 1) * 100,
+        "Empresa vs Sector": (actual / sector - 1) * 100,
+        "Empresa vs S&P 500": (actual / sp500 - 1) * 100
+    }
+
+    mensaje = ""
+
+    for nombre, valor in comparaciones.items():
+        if valor < 0:
+            resultado = f"<b style='color: green;'>↓ {abs(valor):,.2f}%</b>"
+        elif valor > 0:
+            resultado = f"<b style='color: red;'>↑ {valor:,.2f}%</b>"
+        else:
+            resultado = "<b>→ 0.00%</b>"
+
+        mensaje += f"**{nombre}:** {resultado}<br>"
+
+    st.markdown(mensaje, unsafe_allow_html=True)
+
 # Tendencia
 def determinar_tendencia(metricas_q, metric):
     datos = metricas_q[metric].dropna()
@@ -134,6 +163,8 @@ def inicializar_estado():
         st.session_state.mercado_y = None
     if "mercado_q" not in st.session_state:
         st.session_state.mercado_q = None
+    if "industrias_v" not in st.session_state:
+        st.session_state.industrias_v = None
 
 # RESETEAR
 def reset_dashboard():

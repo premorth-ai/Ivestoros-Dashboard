@@ -97,6 +97,7 @@ def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones
 
 # GRÁFICOS DE VALORACIONES
 def financial_valuation_charts(valoraciones, x_column, metrics):
+    from S05_funciones import industrias
     columnas = st.columns(2)
     for i, metric in enumerate(metrics):
         with columnas[i % 2]:
@@ -118,10 +119,7 @@ def financial_valuation_charts(valoraciones, x_column, metrics):
                 dato_actual = valoraciones[metric].iloc[-1]
                 st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
                 with st.expander("Mostrar más"):
-                    st.write("**Actual vs 5YA:** ")
-                    st.write("**Actual vs industria:** ")
-                    st.write("**Actual vs industria 5YA:** ")
-
+                    industrias(st.session_state.valoraciones_y,metric,st.session_state.industrias_v)
 # GRÁFICOS FINANCIEROS
 def financial_relational_charts(datos_norm):
     with st.container(border=True):

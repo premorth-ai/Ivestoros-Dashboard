@@ -1,5 +1,5 @@
 import streamlit as st
-from S02_datos import consultar_web
+from S02_datos import consultar_web,consultar_web2
 from S03_interface import (mostrar_interface,configurar_interface,mostrar_header,mostrar_contenido,navigation)
 from S04_graficos import price_chart,financial_relational_charts,financial_market_relational_charts
 from S05_funciones import (financial_section,get_company_data,inicializar_estado,
@@ -83,6 +83,7 @@ else:
             st.error("Ticker no encontrado")
             ticker = None
         else:
+            industrias_v = consultar_web2(ticker)
             nombre,metricas_y,metricas_q,valoraciones_y,valoraciones_q,mercado_y,mercado_q = resultado
             datos_norm,valoraciones_norm = normalizar_datos(metricas_y,valoraciones_y)
             st.session_state.loaded_ticker = ticker
@@ -95,6 +96,7 @@ else:
             st.session_state.valoraciones_norm = valoraciones_norm
             st.session_state.mercado_y = mercado_y
             st.session_state.mercado_q = mercado_q
+            st.session_state.industrias_v = industrias_v
     else:
         nombre = st.session_state.nombre
         metricas_y = st.session_state.metricas_y
