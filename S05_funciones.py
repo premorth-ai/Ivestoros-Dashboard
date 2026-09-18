@@ -206,3 +206,20 @@ def sistema_puntos(metricas_y):
             calificaciones[metric] = 0
 
     return calificaciones
+
+# CALIFICACIÓN FINANCIERA
+def calificacion_financiera(metricas_y):
+    puntos = sistema_puntos(metricas_y)
+    crecimiento = (puntos["Revenue"] + puntos["FCF"]) / 2
+    rentabilidad = (puntos["Operating Margin"] + puntos["ROIC"] + puntos["FCF margin"]) / 3
+    solidez = (puntos["Debt/Equity"] + puntos["Debt/EBITDA"] + puntos["Current ratio"]) / 3
+    total = (crecimiento + rentabilidad + solidez) / 3
+    metricas_mejorar = [
+        f"{metric}: {puntos[metric]}/10"
+        for metric in puntos
+        if puntos[metric] < 7]
+    if not metricas_mejorar:
+        metricas_mejorar = ["Todas las métricas están en un nivel competente."]
+    return {
+        "Puntos": puntos,"Crecimiento": crecimiento,"Rentabilidad": rentabilidad,"Solidez financiera": solidez,
+        "Total": total,"Métricas a mejorar": metricas_mejorar}
