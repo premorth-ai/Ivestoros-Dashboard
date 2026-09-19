@@ -44,6 +44,9 @@ def price_chart(data):
             )
             configurar_grafico(fig)
             mostrar_grafico(fig)
+            actual = data[data["Fiscal Quarter"] == "Actual"].iloc[0]
+            st.markdown(f"**Precio último cierre:** ${actual['Precio']}")
+            st.markdown(f"**Market Cap último cierre:** {actual['Marketcap']/1000:,.2f} B")
         with tab_datos:
             tabla_data = chart_data
             st.dataframe(tabla_data, use_container_width=True)
