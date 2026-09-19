@@ -51,38 +51,26 @@ def industrias(valoraciones_y, metric, industrias_v):
     st.markdown(mensaje, unsafe_allow_html=True)
 
 # Tendencia
-def determinar_tendencia(metricas_q, metric):
-    datos = metricas_q[metric].dropna()
-    antiguo = datos.iloc[0]
-    actual = datos.iloc[-1]
-    # Descarte directo si son iguales o si el dato inicial es 0
-    if actual == antiguo or antiguo == 0:
-        return "Lateral / No Definida"
-    cambio_global = (actual - antiguo) / abs(antiguo)
-    variaciones = datos.pct_change().dropna()
-    total_variaciones = len(variaciones)
-    umbral_16 = max(1, int(total_variaciones * 0.68)) # ~13 de 19
-    # TENDENCIA ALCISTA
-    if cambio_global >= 0.30:
-        cumple_pasos = (variaciones >= 0.02).sum() >= umbral_16
-        pos_fallas = [i for i, v in enumerate(variaciones) if v < 0.02]
-        tiene_caida_grave = any(variaciones.iloc[i] < -0.2 for i in pos_fallas)
-        tres_consecutivas = len(pos_fallas) > 2 and any(
-        pos_fallas[i + 2] - pos_fallas[i] == 2 and pos_fallas[i + 1] - pos_fallas[i] == 1
-        for i in range(len(pos_fallas) - 2))
-        if cumple_pasos and (not tiene_caida_grave) and (not tres_consecutivas):
-            return "Alcista"
-    # TENDENCIA BAJISTA
-    elif cambio_global < -0.30:
-        cumple_pasos = (variaciones <= -0.02).sum() >= umbral_16
-        pos_fallas = [i for i, v in enumerate(variaciones) if v > -0.02]
-        tiene_rebote_grave = any(variaciones.iloc[i] > 0.2 for i in pos_fallas)
-        tres_consecutivas = len(pos_fallas) > 2 and any(
-        pos_fallas[i + 2] - pos_fallas[i] == 2 and pos_fallas[i + 1] - pos_fallas[i] == 1
-        for i in range(len(pos_fallas) - 2))
-        if cumple_pasos and (not tiene_rebote_grave) and (not tres_consecutivas):
-            return "Bajista"
-    return "Lateral / No Definida"
+def determinar_tendencia(metricas_q, metricas_y, metric):
+    ultimo_periodo = metricas_y.iloc[:, 0].iloc[-1]
+    periodo_q4 = ultimo_periodo.replace("FY", "Q4")
+    posicion_q4 = metricas_q.index[metricas_q.iloc[:, 0] == periodo_q4][0]
+    datos_posteriores = metricas_q.loc[posicion_q4:, metric].dropna()
+    datos_posteriores = datos_posteriores.iloc[1:]
+    if len(datos_posteriores) == 0:
+        return "No hay nuevos trimestres"
+    if len(datos_posteriores) >= 4:
+        return "No hay nuevos trimestres"
+    dato_q4 = metricas_q.loc[posicion_q4, metric]
+    if len(datos_posteriores) == 1:
+        dato_comparar = datos_posteriores.iloc[0]
+    else:
+        dato_comparar = datos_posteriores.mean()
+    if dato_comparar > dato_q4:
+        return "Trimestrales creciendo"
+    elif dato_comparar < dato_q4:
+        return "Trimestrales decreciendo"
+    return "Trimestrales estables"
 
 # MOSTRAR EVALUACIÓN
 def mostrar_evaluacion(metric, calculo):

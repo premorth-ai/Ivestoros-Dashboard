@@ -94,7 +94,7 @@ def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
                 calificacion = "No aplica" if metric == "CapEx" else calificaciones[metric]
                 st.markdown(f"**Calificación:** {calificacion}" if metric == "CapEx" else f"**Calificación:** {calificacion}/10")
-                tendencia = determinar_tendencia(st.session_state.metricas_q, metric)
+                tendencia = determinar_tendencia(st.session_state.metricas_q, st.session_state.metricas_y, metric)
                 st.markdown(f"**Tendencia:** {tendencia}")
                 with st.expander("Mostrar más"):
                     mostrar_evaluacion(metric, calculos[metric])
