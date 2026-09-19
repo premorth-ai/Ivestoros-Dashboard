@@ -3,7 +3,7 @@ from S02_datos import consultar_web
 from S03_interface import (mostrar_sidebar,configurar_interface,mostrar_header,mostrar_contenido,navegacion)
 from S04_graficos import price_chart,graficos_relaciones_metricas,graficos_relaciones_valoraciones
 from S05_funciones import (seccion_financiera,get_company_data,inicializar_estado,reset_dashboard,validar_ticker,
-                           normalizar_datos,comparar_trimestrales,formato_color,calificacion_financiera)
+                           normalizar_datos,comparar_trimestrales,formato_color,calificacion_financiera,formato_calificacion)
 
 
 # CONFIGURACIÓN
@@ -128,7 +128,7 @@ navegacion()
 # CONTENIDO
 if ticker:
     mostrar_contenido(seccion_financiera,graficos_relaciones_metricas,
-    graficos_relaciones_valoraciones,calificacion_financiera,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period)
+    graficos_relaciones_valoraciones,calificacion_financiera,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period,formato_calificacion)
 
 if pantalla_inicial:
     pantalla_inicial.empty()

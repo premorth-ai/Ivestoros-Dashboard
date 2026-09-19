@@ -114,13 +114,12 @@ def formato_color(metric, calculo):
     """
     st.markdown(mensaje, unsafe_allow_html=True)
 
-# FORMATO COLOR CALIFICACIONES
 def formato_calificacion(calificacion):
     if calificacion < 5:
-        return f"<b style='color: red;'>{calificacion}/10</b>"
+        return f"<b style='color: red;'>{calificacion:.1f}/10</b>"
     if calificacion <= 7:
-        return f"<b style='color: #E6B800;'>{calificacion}/10</b>"
-    return f"<b style='color: green;'>{calificacion}/10</b>"
+        return f"<b style='color: #E6B800;'>{calificacion:.1f}/10</b>"
+    return f"<b style='color: green;'>{calificacion:.1f}/10</b>"
 
 # SELECCIÓN DE DATOS
 def get_company_data(metricas_y, metricas_q, valoraciones_y, valoraciones_q, period):

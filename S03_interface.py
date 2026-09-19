@@ -46,7 +46,7 @@ def mostrar_header(empresa,mercado,industria,sector):
         st.markdown(f"**Industria:** {industria}")
 
 # CONTENIDO
-def mostrar_contenido(financial_section,financial_relational_charts,financial_market_relational_charts,calificacion_financiera,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period):
+def mostrar_contenido(financial_section,financial_relational_charts,financial_market_relational_charts,calificacion_financiera,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period,formato_calificacion):
     if st.session_state.section == "Crecimiento":
         financial_section(data,x_column,"Crecimiento",["Revenue","CapEx","FCF"],metricas_y,period)
     elif st.session_state.section == "Rentabilidad":
@@ -68,27 +68,27 @@ def mostrar_contenido(financial_section,financial_relational_charts,financial_ma
 
             with st.container(border=True):
                 st.markdown("<h4 >Crecimiento</h4>", unsafe_allow_html=True)
-                st.markdown(f"**Revenue:** {puntos['Revenue']}/10")
-                st.markdown(f"**FCF:** {puntos['FCF']}/10")
+                st.markdown(f"**Revenue:** {formato_calificacion(puntos['Revenue'])}", unsafe_allow_html=True)
+                st.markdown(f"**FCF:** {formato_calificacion(puntos['FCF'])}", unsafe_allow_html=True)
                 st.markdown("**CapEx:** No aplica")
-                st.markdown(f"**Promedio:** {calificacion['Crecimiento']:.2f}/10")
+                st.markdown(f"**Promedio:** {formato_calificacion(calificacion['Crecimiento'])}", unsafe_allow_html=True)
 
             with st.container(border=True):
                 st.markdown("<h4 >Rentabilidad</h4>", unsafe_allow_html=True)
-                st.markdown(f"**Operating Margin:** {puntos['Operating Margin']}/10")
-                st.markdown(f"**ROIC:** {puntos['ROIC']}/10")
-                st.markdown(f"**FCF margin:** {puntos['FCF margin']}/10")
-                st.markdown(f"**Promedio:** {calificacion['Rentabilidad']:.2f}/10")
+                st.markdown(f"**Operating Margin:** {formato_calificacion(puntos['Operating Margin'])}", unsafe_allow_html=True)
+                st.markdown(f"**ROIC:** {formato_calificacion(puntos['ROIC'])}", unsafe_allow_html=True)
+                st.markdown(f"**FCF margin:** {formato_calificacion(puntos['FCF margin'])}", unsafe_allow_html=True)
+                st.markdown(f"**Promedio:** {formato_calificacion(calificacion['Rentabilidad'])}", unsafe_allow_html=True)
 
             with st.container(border=True):
                 st.markdown("<h4 >Solidez financiera</h4>", unsafe_allow_html=True)
-                st.markdown(f"**Debt/Equity:** {puntos['Debt/Equity']}/10")
-                st.markdown(f"**Debt/EBITDA:** {puntos['Debt/EBITDA']}/10")
-                st.markdown(f"**Current ratio:** {puntos['Current ratio']}/10")
-                st.markdown(f"**Promedio:** {calificacion['Solidez financiera']:.2f}/10")
+                st.markdown(f"**Debt/Equity:** {formato_calificacion(puntos['Debt/Equity'])}", unsafe_allow_html=True)
+                st.markdown(f"**Debt/EBITDA:** {formato_calificacion(puntos['Debt/EBITDA'])}", unsafe_allow_html=True)
+                st.markdown(f"**Current ratio:** {formato_calificacion(puntos['Current ratio'])}", unsafe_allow_html=True)
+                st.markdown(f"**Promedio:** {formato_calificacion(calificacion['Solidez financiera'])}", unsafe_allow_html=True)
 
             with st.container(border=True):
-                st.markdown(f"<h4 >Calificación total: {calificacion['Total']:.2f}/10</h4>", unsafe_allow_html=True)
+                st.markdown(f"<h4 >Calificación total: {formato_calificacion(calificacion['Total'])}</h4>", unsafe_allow_html=True)
                 st.markdown("**Métricas a mejorar:**")
                 for metrica in calificacion["Métricas a mejorar"]:
                     st.markdown(f"- {metrica}")
