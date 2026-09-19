@@ -13,17 +13,9 @@ def mostrar_grafico(fig):
         fig,
         use_container_width=True,
         config={
-            "scrollZoom": False,
-            "displayModeBar": True,
-            "displaylogo": False,
-            "modeBarButtonsToRemove": [
-                "zoom2d", "pan2d", "select2d",
-                "lasso2d", "zoomIn2d", "zoomOut2d",
-                "autoScale2d", "resetScale2d"
-            ],
-            "showTips": True
-        }
-    )
+            "scrollZoom": False,"displayModeBar": True,"displaylogo": False,"modeBarButtonsToRemove": [
+            "zoom2d", "pan2d", "select2d","lasso2d", "zoomIn2d", "zoomOut2d","autoScale2d", "resetScale2d"],
+            "showTips": True})
 
 # GRAFICO PRECIO POR PERIODO
 def price_chart(data):
@@ -39,9 +31,7 @@ def price_chart(data):
                 tickvals=chart_data["Fiscal Quarter"],
                 ticktext=[
                     f"<b>{x}</b>" if x in ["FY", "Actual"] else x
-                    for x in chart_data["Fiscal Quarter"]
-                ]
-            )
+                    for x in chart_data["Fiscal Quarter"]])
             configurar_grafico(fig)
             mostrar_grafico(fig)
             actual = data[data["Fiscal Quarter"] == "Actual"].iloc[0]
@@ -52,7 +42,7 @@ def price_chart(data):
             st.dataframe(tabla_data, use_container_width=True)
 
 # GRÁFICOS DE MÉTRICAS
-def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion):
+def graficos_metricas(metricas, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion):
     columnas = st.columns(len(metrics))
     for columna, metric in zip(columnas, metrics):
         with columna:
@@ -100,7 +90,7 @@ def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones
                     mostrar_evaluacion(metric, calculos[metric])
 
 # GRÁFICOS DE VALORACIONES
-def financial_valuation_charts(valoraciones, x_column, metrics):
+def graficos_valoraciones(valoraciones, x_column, metrics):
     from S05_funciones import industrias
     columnas = st.columns(2)
     for i, metric in enumerate(metrics):
@@ -126,7 +116,7 @@ def financial_valuation_charts(valoraciones, x_column, metrics):
                     industrias(st.session_state.valoraciones_y,metric,st.session_state.industrias_v)
 
 # GRÁFICOS FINANCIEROS
-def financial_relational_charts(datos_norm):
+def graficos_relaciones_metricas(datos_norm):
     with st.container(border=True):
         st.markdown("<h3 style='text-align: center;'>Relaciones financieras (datos normalizados)</h3>", unsafe_allow_html=True)
 
@@ -152,8 +142,8 @@ def financial_relational_charts(datos_norm):
 
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center;'>Solvencia financiera</h4>", unsafe_allow_html=True)
-        chart_data = datos_norm[["Fiscal Year", "FCF", "Operating Margin", "Debt/EBITDA"]]
-        fig = px.line(chart_data, x="Fiscal Year", y=["FCF", "Operating Margin", "Debt/EBITDA"], markers=True,
+        chart_data = datos_norm[["Fiscal Year", "FCF", "Operating Margin", "EBITDA/Debt"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["FCF", "Operating Margin", "EBITDA/Debt"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A", "#329356"])
         configurar_grafico(fig)
         fig.update_yaxes(type="log")
@@ -181,15 +171,15 @@ def financial_relational_charts(datos_norm):
         mostrar_grafico(fig)
 
 # GRÁFICOS BURSÁTIL FINANCIEROS
-def financial_market_relational_charts(datos_norm, valoraciones_norm):
+def graficos_relaciones_valoraciones(datos_norm, valoraciones_norm):
     datos = datos_norm.merge(valoraciones_norm, on="Fiscal Year")
     with st.container(border=True):
         st.markdown("<h3 style='text-align: center;'>Relaciones Bursátiles (Datos normalizados)</h3>", unsafe_allow_html=True)
 
     with st.container(border=True):
         st.markdown("<h4 style='text-align: center;'>P/E vs EBITDA/Deuda</h4>", unsafe_allow_html=True)
-        chart_data = datos[["Fiscal Year", "P/E", "Debt/EBITDA"]]
-        fig = px.line(chart_data, x="Fiscal Year", y=["P/E", "Debt/EBITDA"], markers=True,
+        chart_data = datos[["Fiscal Year", "P/E", "EBITDA/Debt"]]
+        fig = px.line(chart_data, x="Fiscal Year", y=["P/E", "EBITDA/Debt"], markers=True,
                       color_discrete_sequence=["#2382CA", "#533F8A"])
         configurar_grafico(fig)
         fig.update_yaxes(type="log")

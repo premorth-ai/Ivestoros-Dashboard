@@ -1,18 +1,17 @@
 import streamlit as st
 
 # SECCIONES FINANCIERAS INDIVIDUALES
-def financial_section(data, x_column, title, metrics, metricas_y, period):
-    # Carga diferida para evitar el bucle circular con S04_graficos
-    from S04_graficos import financial_metric_charts, financial_valuation_charts
+def seccion_financiera(data, x_column, title, metrics, metricas_y, period):
+    from S04_graficos import graficos_metricas, graficos_valoraciones
     
     with st.container(border=True):
         st.markdown(f"<h3 style='text-align: center;'>{title}</h3>", unsafe_allow_html=True)
     if title == "Valoraciones":
-        financial_valuation_charts(data, x_column, metrics)
+        graficos_valoraciones(data, x_column, metrics)
     else:
         calculos = {metric: calcular_metricas(metricas_y, metric) for metric in metrics}
-        calificaciones = sistema_puntos(metricas_y)
-        financial_metric_charts(data, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion)
+        calificaciones = sistema_calificacion(metricas_y)
+        graficos_metricas(data, x_column, metrics, calculos,calificaciones,comparar_trimestrales,formato_color)
 
 # CÁLCULO DE MÉTRICAS
 def calcular_metricas(metricas_y, metric):
@@ -50,8 +49,8 @@ def industrias(valoraciones_y, metric, industrias_v):
         mensaje += f"**{nombre}:** {resultado}<br>"
     st.markdown(mensaje, unsafe_allow_html=True)
 
-# Tendencia
-def determinar_tendencia(metricas_q, metricas_y, metric):
+# COMPARAR TRIMESTRALES
+def comparar_trimestrales(metricas_q, metricas_y, metric):
     ultimo_periodo = metricas_y.iloc[:, 0].iloc[-1]
     periodo_q4 = ultimo_periodo.replace("FY", "Q4")
     posicion_q4 = metricas_q.index[metricas_q.iloc[:, 0] == periodo_q4][0]
@@ -72,8 +71,8 @@ def determinar_tendencia(metricas_q, metricas_y, metric):
         return "Trimestrales decreciendo"
     return "Trimestrales estables"
 
-# MOSTRAR EVALUACIÓN
-def mostrar_evaluacion(metric, calculo):
+# Formato de color
+def formato_color(metric, calculo):
     metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin", "Current ratio"}
     metricas_inversas = {"Debt/Equity","Debt/EBITDA"}
     def formato(valor):
@@ -150,7 +149,7 @@ def normalizar_datos(datos_y, valoraciones_y):
     datos_norm = datos_y.copy()
     valoraciones_norm = valoraciones_y.copy()
     # Inverso seguro para Debt/EBITDA
-    datos_norm["Debt/EBITDA Inverso"] = datos_norm["Debt/EBITDA"].apply(lambda x: 1 / x if x != 0 else 0)
+    datos_norm["EBITDA/Debt"] = datos_norm["Debt/EBITDA"].apply(lambda x: 1 / x if x != 0 else 0)
     for columna in datos_norm.columns[1:]:
         val_inicial = datos_norm[columna].iloc[0]
         if val_inicial != 0:
@@ -166,7 +165,7 @@ def normalizar_datos(datos_y, valoraciones_y):
     return datos_norm, valoraciones_norm
 
 # SISTEMA DE PUNTOS
-def sistema_puntos(metricas_y):
+def sistema_calificacion(metricas_y):
     calificaciones = {}
     rangos = {
     "Revenue": [(0.15,10),(0.11,9),(0.08,8),(0.05,7),(0.02,6),(0,5),(-0.05,4),(-0.10,3),(-0.20,2)],
@@ -203,7 +202,7 @@ def sistema_puntos(metricas_y):
 
 # CALIFICACIÓN FINANCIERA
 def calificacion_financiera(metricas_y):
-    puntos = sistema_puntos(metricas_y)
+    puntos = sistema_calificacion(metricas_y)
     crecimiento = (puntos["Revenue"] + puntos["FCF"]) / 2
     rentabilidad = (puntos["Operating Margin"] + puntos["ROIC"] + puntos["FCF margin"]) / 3
     solidez = (puntos["Debt/Equity"] + puntos["Debt/EBITDA"] + puntos["Current ratio"]) / 3

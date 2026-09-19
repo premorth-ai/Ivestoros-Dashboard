@@ -1,9 +1,9 @@
 import streamlit as st
 from S02_datos import consultar_web
-from S03_interface import (mostrar_interface,configurar_interface,mostrar_header,mostrar_contenido,navigation)
-from S04_graficos import price_chart,financial_relational_charts,financial_market_relational_charts
-from S05_funciones import (financial_section,get_company_data,inicializar_estado,
-                           reset_dashboard,validar_ticker,normalizar_datos,determinar_tendencia,mostrar_evaluacion,calificacion_financiera)
+from S03_interface import (mostrar_sidebar,configurar_interface,mostrar_header,mostrar_contenido,navegacion)
+from S04_graficos import price_chart,graficos_relaciones_metricas,graficos_relaciones_valoraciones
+from S05_funciones import (seccion_financiera,get_company_data,inicializar_estado,
+                           reset_dashboard,validar_ticker,normalizar_datos,comparar_trimestrales,formato_color,calificacion_financiera)
 
 
 # CONFIGURACIÓN
@@ -44,7 +44,7 @@ if st.session_state.carga_inicial:
     """,unsafe_allow_html=True)
 
 # SIDEBAR
-ticker,period = mostrar_interface(reset_dashboard)
+ticker,period = mostrar_sidebar(reset_dashboard)
 
 # VALIDACIÓN DEL TICKER
 ticker = validar_ticker(ticker)
@@ -124,12 +124,12 @@ if ticker:
         pantalla_carga.empty()
 
 # NAVEGACIÓN
-navigation()
+navegacion()
 
 # CONTENIDO
 if ticker:
-    mostrar_contenido(financial_section,financial_relational_charts,
-    financial_market_relational_charts,calificacion_financiera,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period)
+    mostrar_contenido(seccion_financiera,graficos_relaciones_metricas,
+    graficos_relaciones_valoraciones,calificacion_financiera,data,x_column,datos_norm,valoraciones,valoraciones_norm,metricas_y,period)
 
 if pantalla_inicial:
     pantalla_inicial.empty()

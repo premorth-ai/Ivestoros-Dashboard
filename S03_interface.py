@@ -18,7 +18,7 @@ def configurar_interface():
     </style>""",unsafe_allow_html=True)
 
 # SIDEBAR
-def mostrar_interface(reset_dashboard):
+def mostrar_sidebar(reset_dashboard):
     with st.sidebar:
         st.markdown("""
         <style>
@@ -94,7 +94,7 @@ def mostrar_contenido(financial_section,financial_relational_charts,financial_ma
                     st.markdown(f"- {metrica}")
 
 # NAVEGACION
-def navigation():
+def navegacion():
     col1,col2,col3 = st.columns([1,1,1])
     with col1:
         with st.popover("📚 COMPONENTES FINANCIEROS",use_container_width=True,key="componentes"):
