@@ -74,7 +74,7 @@ def determinar_tendencia(metricas_q, metricas_y, metric):
 
 # MOSTRAR EVALUACIÓN
 def mostrar_evaluacion(metric, calculo):
-    metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin"}
+    metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin", "Current ratio"}
     metricas_inversas = {"Debt/Equity","Debt/EBITDA"}
     def formato(valor):
         if metric in metricas_directas:
