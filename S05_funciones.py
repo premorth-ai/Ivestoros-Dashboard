@@ -11,7 +11,7 @@ def seccion_financiera(data, x_column, title, metrics, metricas_y, period):
     else:
         calculos = {metric: calcular_metricas(metricas_y, metric) for metric in metrics}
         calificaciones = sistema_calificacion(metricas_y)
-        graficos_metricas(data, x_column, metrics, calculos,calificaciones,comparar_trimestrales,formato_color)
+        graficos_metricas(data, x_column, metrics, calculos,calificaciones,comparar_trimestrales,formato_color,formato_calificacion,formato_trimestrales)
 
 # CÁLCULO DE MÉTRICAS
 def calcular_metricas(metricas_y, metric):
@@ -71,6 +71,19 @@ def comparar_trimestrales(metricas_q, metricas_y, metric):
         return "Trimestrales decreciendo"
     return "Trimestrales estables"
 
+# FORMATO COLOR TRIMESTRALES
+def formato_trimestrales(metric, tendencia):
+    metricas_inversas = {"Debt/Equity","Debt/EBITDA"}
+    if tendencia == "Trimestrales creciendo":
+        if metric in metricas_inversas:
+            return "<b style='color: red;'>Trimestrales creciendo</b>"
+        return "<b style='color: green;'>Trimestrales creciendo</b>"
+    if tendencia == "Trimestrales decreciendo":
+        if metric in metricas_inversas:
+            return "<b style='color: green;'>Trimestrales decreciendo</b>"
+        return "<b style='color: red;'>Trimestrales decreciendo</b>"
+    return f"<b>{tendencia}</b>"
+
 # Formato de color
 def formato_color(metric, calculo):
     metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin", "Current ratio"}
@@ -100,6 +113,14 @@ def formato_color(metric, calculo):
     **CAGR:** {formato(calculo["CAGR"])}
     """
     st.markdown(mensaje, unsafe_allow_html=True)
+
+# FORMATO COLOR CALIFICACIONES
+def formato_calificacion(calificacion):
+    if calificacion < 5:
+        return f"<b style='color: red;'>{calificacion}/10</b>"
+    if calificacion <= 7:
+        return f"<b style='color: #E6B800;'>{calificacion}/10</b>"
+    return f"<b style='color: green;'>{calificacion}/10</b>"
 
 # SELECCIÓN DE DATOS
 def get_company_data(metricas_y, metricas_q, valoraciones_y, valoraciones_q, period):

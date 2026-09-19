@@ -42,7 +42,7 @@ def price_chart(data):
             st.dataframe(tabla_data, use_container_width=True)
 
 # GRÁFICOS DE MÉTRICAS
-def graficos_metricas(metricas, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion):
+def graficos_metricas(metricas, x_column, metrics, calculos,calificaciones,determinar_tendencia,mostrar_evaluacion,formato_calificacion,formato_trimestrales):
     columnas = st.columns(len(metrics))
     for columna, metric in zip(columnas, metrics):
         with columna:
@@ -82,10 +82,14 @@ def graficos_metricas(metricas, x_column, metrics, calculos,calificaciones,deter
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}%")
                 else:
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
-                calificacion = "No aplica" if metric == "CapEx" else calificaciones[metric]
-                st.markdown(f"**Calificación:** {calificacion}" if metric == "CapEx" else f"**Calificación:** {calificacion}/10")
+                if metric == "CapEx":
+                    st.markdown("**Calificación:** No aplica")
+                else:
+                    calificacion = formato_calificacion(calificaciones[metric])
+                    st.markdown(f"**Calificación:** {calificacion}", unsafe_allow_html=True)
                 tendencia = determinar_tendencia(st.session_state.metricas_q, st.session_state.metricas_y, metric)
-                st.markdown(f"**Tendencia:** {tendencia}")
+                tendencia = formato_trimestrales(metric, tendencia)
+                st.markdown(f"**Tendencia:** {tendencia}", unsafe_allow_html=True)
                 with st.expander("Mostrar más"):
                     mostrar_evaluacion(metric, calculos[metric])
 
