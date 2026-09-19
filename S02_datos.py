@@ -68,9 +68,7 @@ def consultar_web(ticker):
     with ThreadPoolExecutor(max_workers=6) as executor:
         respuestas = list(executor.map(
             lambda url: requests.get(url, headers=headers),
-            urls
-        ))
-
+            urls))
     respuestas_y = respuestas[:3]
     respuestas_q = respuestas[3:]
 
@@ -87,96 +85,74 @@ def consultar_web(ticker):
                     if not filas.empty:
                         datos.append(filas)
                         datos_encontrados.update(filas.iloc[:, 0])
-
         # CONVERTIR A DATAFRAME
         datos = pd.concat(datos, ignore_index=True)
-
         # ELIMINAR TTM
         if "TTM" in datos.columns.get_level_values(0):
             datos = datos.drop(columns=["TTM"], level=0)
-
         # CONVERTIR ENCABEZADOS EN UNA FILA DE DATOS
         datos.loc[-1] = datos.columns.get_level_values(0).tolist()
         datos.index = datos.index + 1
         datos = datos.sort_index()
-
         # QUITAR SEGUNDO NIVEL DEL ENCABEZADO
         datos.columns = datos.columns.get_level_values(0)
-
         # ELIMINAR LOS ENCABEZADOS ORIGINALES
         datos.columns = range(datos.shape[1])
-
         # TRANSPONER DATAFRAME
         datos = datos.T
         datos.columns = datos.iloc[0]
         datos = datos.iloc[1:]
         datos = datos.reset_index()
         datos = datos.rename(columns={"index": nombre_periodo})
-
         # ELIMINAR FISCAL YEAR DUPLICADO
         datos = datos.iloc[:, 1:]
-
         # CAMBIAR NOMBRES
         datos = datos.rename(columns=nombres_columnas)
-
         # CAMBIAR CURRENT POR ACTUAL
         datos[nombre_periodo] = datos[nombre_periodo].replace("Current","Actual")
-
         # CONVERTIR "-" A NONE
         datos = datos.replace("-",0)
         datos = datos.fillna(0)
-
         # PASAR CAPEX A NUMERO POSITIVO
         datos["CapEx"] = pd.to_numeric(datos["CapEx"]).abs()
-
         # CONVERTIR MÁRGENES A DECIMAL
         columnas_margen = ["Operating Margin", "FCF margin", "ROIC"]
         for columna in columnas_margen:
             datos[columna] = (datos[columna].astype(str).str.replace("%", "", regex=False).astype(float))
-
         # QUitar comas de marketcap
         datos["Marketcap"] = datos["Marketcap"].astype(str).str.replace(",", "", regex=False)
-
         # CAMBIAR TIPO
         columnas_int = ["Revenue","FCF","CapEx", "Marketcap"]
         columnas_float = ["Operating Margin","FCF margin","Debt/Equity","Debt/EBITDA","Current ratio",
                           "ROIC","Precio","P/E","P/S","P/B","P/FCF"]
         datos[columnas_int] = datos[columnas_int].astype(int)
         datos[columnas_float] = datos[columnas_float].astype(float)
-
         # SEPARAR MÉTRICAS Y VALORACIONES
         metricas = datos[[nombre_periodo,"Revenue","FCF","Operating Margin","FCF margin","CapEx",
             "Debt/Equity","Debt/EBITDA","Current ratio","ROIC"]]
         valoraciones = datos[[nombre_periodo,"P/E","P/S","P/B","P/FCF"]]
         mercado = datos[[nombre_periodo,"Precio","Marketcap"]]
-
         # INVERTIR LISTA
         metricas = metricas.iloc[::-1].reset_index(drop=True)
         valoraciones = valoraciones.iloc[::-1].reset_index(drop=True)
         mercado = mercado.iloc[::-1].reset_index(drop=True)
-
         metricas = metricas[metricas.iloc[:, 0] != "Actual"].reset_index(drop=True)
-
         actual = valoraciones[valoraciones.iloc[:, 0] == "Actual"]
         valoraciones = valoraciones[valoraciones.iloc[:, 0] != "Actual"]
         valoraciones = pd.concat([valoraciones,actual],ignore_index=True)
-
         actual = mercado[mercado.iloc[:, 0] == "Actual"]
         mercado = mercado[mercado.iloc[:, 0] != "Actual"]
         mercado = pd.concat([mercado,actual],ignore_index=True)
-        
+
         return metricas, valoraciones, mercado
 
     # DATOS ANUALES Y TRIMESTRALES
     metricas_y, valoraciones_y, mercado_y = procesar_datos(respuestas_y, "Fiscal Year")
     metricas_q, valoraciones_q, mercado_q = procesar_datos(respuestas_q, "Fiscal Quarter")
-    print(metricas_q)
-
     # OBTENER DATOS DE INDUSTRIA
     datos2_buscar = ["Price to earnings PE Ratio","Price to Sales",
         "Price to Free Cash Flow","Price to Book"]
     datos3_buscar= ["Industry", "Sector"]
-
     # OBTENER LOS DATOS DE LAS TABLAS
     industrias_v = []
     industria = ""
@@ -186,7 +162,6 @@ def consultar_web(ticker):
         if not filas.empty:
             filas = pd.concat([tabla.iloc[[0]],filas])
             industrias_v.append(filas)
-
         filas = tabla[tabla.iloc[:, 0].astype(str).str.startswith(tuple(datos3_buscar))]
         if not filas.empty:
             for fila in filas.iloc[:, 0]:
@@ -194,13 +169,10 @@ def consultar_web(ticker):
                     industria = str(fila).split("•",1)[-1].strip()
                 elif str(fila).startswith("Sector"):
                     sector = str(fila).split("•",1)[-1].strip()
-
     # CONVERTIR A DATAFRAME
     industrias_v = pd.concat(industrias_v, ignore_index=True)
-
     # ELIMINAR LOS ENCABEZADOS ORIGINALES
     industrias_v.columns = range(industrias_v.shape[1])
-
     # TRANSPONER DATAFRAME
     industrias_v = industrias_v.T
     industrias_v.columns = industrias_v.iloc[0]
@@ -208,20 +180,14 @@ def consultar_web(ticker):
     industrias_v = industrias_v.reset_index()
     industrias_v = industrias_v.drop(columns=["index"])
     industrias_v = industrias_v[industrias_v.iloc[:, 0] != "Company"].reset_index(drop=True)
-
     # RENOMBRAR COLUMNAS
     renombrar = {
-        "Price to earnings PE Ratio": "P/E",
-        "Price to Sales": "P/S",
-        "Price to Free Cash Flow": "P/FCF",
-        "Price to Book": "P/B"
-    }
-
+        "Price to earnings PE Ratio": "P/E","Price to Sales": "P/S",
+        "Price to Free Cash Flow": "P/FCF","Price to Book": "P/B"}
     for columna in industrias_v.columns:
-        for nombre, nuevo_nombre in renombrar.items():
-            if str(columna).startswith(nombre):
+        for nombre_columna, nuevo_nombre in renombrar.items():
+            if str(columna).startswith(nombre_columna):
                 industrias_v = industrias_v.rename(columns={columna: nuevo_nombre})
-
     industrias_v[industrias_v.columns[1:]] = industrias_v[industrias_v.columns[1:]].astype(float)
 
-    return nombre, metricas_y, metricas_q, valoraciones_y, valoraciones_q, mercado_y, mercado_q, industrias_v
+    return nombre, metricas_y, metricas_q, valoraciones_y, valoraciones_q, mercado_y, mercado_q, industrias_v, industria, sector

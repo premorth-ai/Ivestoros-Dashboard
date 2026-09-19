@@ -143,6 +143,10 @@ def inicializar_estado():
         st.session_state.mercado_q = None
     if "industrias_v" not in st.session_state:
         st.session_state.industrias_v = None
+    if "industria" not in st.session_state:
+        st.session_state.industria = None
+    if "sector" not in st.session_state:
+        st.session_state.sector = None
 
 # RESETEAR
 def reset_dashboard():

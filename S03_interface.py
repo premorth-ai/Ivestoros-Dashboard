@@ -39,9 +39,10 @@ def mostrar_interface(reset_dashboard):
     return ticker,period
 
 # HEADER
-def mostrar_header(empresa,mercado):
+def mostrar_header(empresa,mercado,industria,sector):
     with st.container():
         st.markdown(f"# ANÁLISIS DE: {empresa.upper()}")
+        st.markdown(f"**Sector:** {sector}  **Industria:** {industria}")
         st.markdown(f"**Precio último cierre:** ${mercado.loc[mercado.iloc[:, 0] == "Actual","Precio"].iloc[0]}")
         st.markdown(f"**Market Cap último cierre:** {mercado.loc[mercado.iloc[:, 0] == "Actual","Marketcap"].iloc[0]/1000:,.2f} B")
 

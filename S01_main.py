@@ -82,7 +82,7 @@ else:
             st.error("Ticker no encontrado")
             ticker = None
         else:
-            nombre,metricas_y,metricas_q,valoraciones_y,valoraciones_q,mercado_y,mercado_q,industrias_v = resultado
+            nombre,metricas_y,metricas_q,valoraciones_y,valoraciones_q,mercado_y,mercado_q,industrias_v,industria,sector = resultado
             datos_norm,valoraciones_norm = normalizar_datos(metricas_y,valoraciones_y)
             st.session_state.loaded_ticker = ticker
             st.session_state.nombre = nombre
@@ -95,6 +95,8 @@ else:
             st.session_state.mercado_y = mercado_y
             st.session_state.mercado_q = mercado_q
             st.session_state.industrias_v = industrias_v
+            st.session_state.industria = industria
+            st.session_state.sector = sector
     else:
         nombre = st.session_state.nombre
         metricas_y = st.session_state.metricas_y
@@ -105,6 +107,8 @@ else:
         valoraciones_norm = st.session_state.valoraciones_norm
         mercado_y = st.session_state.mercado_y
         mercado_q = st.session_state.mercado_q
+        industria = st.session_state.industria
+        sector = st.session_state.sector
 
     if ticker:
         empresa = nombre
@@ -114,7 +118,7 @@ else:
 
 # HEADER
 if ticker:
-    mostrar_header(empresa,mercado_q)
+    mostrar_header(empresa,mercado_q,industria,sector)
     price_chart(mercado_q)
     if pantalla_carga:
         pantalla_carga.empty()
