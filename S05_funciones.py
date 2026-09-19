@@ -85,7 +85,7 @@ def determinar_tendencia(metricas_q, metric):
     return "Lateral / No Definida"
 
 # MOSTRAR EVALUACIÓN
-def mostrar_evaluacion(metric, calculo, tendencia):
+def mostrar_evaluacion(metric, calculo):
     metricas_directas = {"Revenue","FCF","Operating Margin","ROIC","FCF margin"}
     metricas_inversas = {"Debt/Equity","Debt/EBITDA"}
     def formato(valor):
@@ -110,8 +110,7 @@ def mostrar_evaluacion(metric, calculo, tendencia):
     **Actual vs anterior:** {formato(calculo["Actual vs anterior"])}  
     **Actual vs más antiguo:** {formato(calculo["Actual vs más antiguo"])}  
     **Actual vs promedio:** {formato(calculo["Actual vs 5YA"])}  
-    **CAGR:** {formato(calculo["CAGR"])}  
-    **Tendencia:** {tendencia}
+    **CAGR:** {formato(calculo["CAGR"])}
     """
     st.markdown(mensaje, unsafe_allow_html=True)
 

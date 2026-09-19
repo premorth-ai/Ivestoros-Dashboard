@@ -70,7 +70,7 @@ def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones
                     fig.update_traces(hovertemplate="%{y:,.2f}<extra></extra>")
                 configurar_grafico(fig, 300)
                 fig.update_xaxes(type="category", tickmode="array", tickvals=chart_data.index.tolist())
-                
+
                 tab_grafico, tab_datos = st.tabs(["📊 Gráfico", "📋 Datos"])
                 with tab_grafico:
                     mostrar_grafico(fig)
@@ -84,7 +84,7 @@ def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones
                                     column_config={metric: st.column_config.NumberColumn(format="%.2f%%")})
                     else:
                         st.dataframe(tabla_data, use_container_width=True)
-                        
+
                 dato_actual = metricas[metric].iloc[-1]
                 if metric in ["Revenue", "CapEx", "FCF"]:
                     st.markdown(f"**Dato Actual:** ${dato_actual:,.0f} M")
@@ -94,9 +94,10 @@ def financial_metric_charts(metricas, x_column, metrics, calculos,calificaciones
                     st.markdown(f"**Dato Actual:** {dato_actual:,.2f}")
                 calificacion = "No aplica" if metric == "CapEx" else calificaciones[metric]
                 st.markdown(f"**Calificación:** {calificacion}" if metric == "CapEx" else f"**Calificación:** {calificacion}/10")
+                tendencia = determinar_tendencia(st.session_state.metricas_q, metric)
+                st.markdown(f"**Tendencia:** {tendencia}")
                 with st.expander("Mostrar más"):
-                    tendencia = determinar_tendencia(st.session_state.metricas_q, metric)
-                    mostrar_evaluacion(metric, calculos[metric], tendencia)
+                    mostrar_evaluacion(metric, calculos[metric])
 
 # GRÁFICOS DE VALORACIONES
 def financial_valuation_charts(valoraciones, x_column, metrics):
